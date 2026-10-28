@@ -1,0 +1,42 @@
+# Лабораторные работы по ООП
+
+Общий репозиторий лабораторных работ на C++. Каждое задание собирается отдельно.
+
+## Работы
+
+| Лабораторная | Задание | Каталог |
+|---|---|---|
+| 1 | Решатель уравнений, вариант 2 | [equation_solver](lab_1/equation_solver/) |
+| 1 | Генерация и прохождение лабиринта, вариант 2 | [maze](lab_1/maze/) |
+
+Следующие лабораторные размещаются в каталогах `lab_2/`, `lab_3/` и так далее.
+Вторая лабораторная пока не реализована.
+
+## Сборка и тестирование
+
+Нужны компилятор C++20 и CMake. GoogleTest будет найден в системе или загружен
+при первой конфигурации; для загрузки требуется интернет.
+
+Из корня репозитория:
+
+```sh
+cmake -S lab_1/equation_solver -B build/equation_solver -DCMAKE_BUILD_TYPE=Release
+cmake --build build/equation_solver --parallel
+ctest --test-dir build/equation_solver --output-on-failure
+
+cmake -S lab_1/maze -B build/maze -DCMAKE_BUILD_TYPE=Release
+cmake --build build/maze --parallel
+ctest --test-dir build/maze --output-on-failure
+```
+
+Для команды `ctest --test-dir` нужен CMake 3.20 или новее.
+Описание запуска и форматов ввода находится в README соответствующего задания.
+GitHub Actions собирает и тестирует оба задания на Linux.
+
+## Перенос первой лабораторной
+
+Сохранена история исходного репозитория `DomDomych/lab1_oop`.
+Исходники, тесты и скрипты перенесены в `lab_1/` без изменения алгоритмов.
+Вложенные `.github/workflows/windows-release.yml` сохранены как исходные
+настройки отдельных проектов; в монорепозитории они не запускаются.
+Ссылки на Windows-релизы в README заданий ведут к прежним репозиториям.

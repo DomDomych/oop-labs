@@ -1,0 +1,26 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [equation_solver, maze]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S lab_1/${{ matrix.project }} -B build/${{ matrix.project }} -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build/${{ matrix.project }} --parallel 2
+      - name: Test
+        run: ctest --test-dir build/${{ matrix.project }} --output-on-failure --no-tests=error
