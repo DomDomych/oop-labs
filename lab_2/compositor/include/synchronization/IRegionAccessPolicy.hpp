@@ -8,6 +8,10 @@ class IRegionAccess {
 public:
     virtual ~IRegionAccess() = default;
     // Executes synchronously exactly once if acquisition succeeds; propagates errors.
+    // Runs the operation in the calling thread and does not retain it after return
+    // or exception. Concurrent calls on the same access object are supported;
+    // mutual exclusion of operations depends on the chosen implementation.
+    // An invalid region throws std::out_of_range without invoking the operation.
     // The operation must not call withRegion on this same access object, directly
     // or indirectly, for any region. Nested acquisition is not supported.
     virtual void withRegion(std::size_t region, const std::function<void()>& operation) = 0;
