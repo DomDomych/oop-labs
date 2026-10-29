@@ -5,6 +5,10 @@
 
 namespace compositor {
 
+Image::Image(Image&& other) noexcept : width_(0), height_(0) {
+    swap(other);
+}
+
 void Image::swap(Image& other) noexcept {
     using std::swap;
     swap(width_, other.width_);
