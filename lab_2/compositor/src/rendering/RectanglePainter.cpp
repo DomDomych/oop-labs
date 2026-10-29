@@ -8,8 +8,10 @@
 namespace compositor::detail {
 
 RectanglePainter::RectanglePainter(Image& working, std::size_t regionWidth,
-                                   std::size_t regionHeight)
+                                   std::size_t regionHeight,
+                                   const IRegionAccessPolicy& accessPolicy)
     : working_(working), grid_(working.width(), working.height(), regionWidth, regionHeight),
+      access_(accessPolicy.create(grid_.count())),
       touched_(working.width() * working.height(), 0) {}
 
 void RectanglePainter::paint(const Rectangle& rectangle, std::size_t index) {
@@ -25,11 +27,14 @@ void RectanglePainter::paint(const Rectangle& rectangle, std::size_t index) {
     const auto lastRow = last / grid_.columns();
     for (auto row = first / grid_.columns(); row <= lastRow; ++row) {
         for (auto column = firstColumn; column <= lastColumn; ++column) {
-            const auto region = grid_.bounds(row * grid_.columns() + column);
-            paintRegion({std::max(bounds->left, region.left),
+            const auto regionId = row * grid_.columns() + column;
+            const auto region = grid_.bounds(regionId);
+            access_->withRegion(regionId, [&] {
+                paintRegion({std::max(bounds->left, region.left),
                          std::max(bounds->top, region.top),
                          std::min(bounds->right, region.right),
                          std::min(bounds->bottom, region.bottom)}, replacement);
+            });
         }
     }
 }
