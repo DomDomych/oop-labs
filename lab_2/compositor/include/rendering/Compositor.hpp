@@ -7,9 +7,9 @@ namespace compositor {
 
 class Compositor {
 public:
-    // Builds a new image sequentially without changing the scene.
-    // Allocation errors propagate to the caller.
-    Image render(const Scene& scene) const;
+    // Draws sequentially onto a caller-owned canvas without changing the scene.
+    // For now the canvas must have no previous rectangle winners.
+    void render(const Scene& scene, Image& canvas) const;
 };
 
 } // namespace compositor

@@ -5,13 +5,12 @@
 
 namespace compositor {
 
-Image Compositor::render(const Scene& scene) const {
-    Image image{scene.width(), scene.height(), scene.background()};
+void Compositor::render(const Scene& scene, Image& canvas) const {
     const RectangleClipper clipper;
     const auto& rectangles = scene.rectangles();
     for (std::size_t index = 0; index < rectangles.size(); ++index) {
         const auto& rectangle = rectangles[index];
-        const auto bounds = clipper.clip(rectangle, image.width(), image.height());
+        const auto bounds = clipper.clip(rectangle, canvas.width(), canvas.height());
         if (!bounds) {
             continue;
         }
@@ -19,13 +18,12 @@ Image Compositor::render(const Scene& scene) const {
         const PixelState replacement{rectangle.color(), candidate};
         for (std::size_t y = bounds->top; y < bounds->bottom; ++y) {
             for (std::size_t x = bounds->left; x < bounds->right; ++x) {
-                if (shouldReplace(image.at(x, y), candidate)) {
-                    image.setPixel(x, y, replacement);
+                if (shouldReplace(canvas.at(x, y), candidate)) {
+                    canvas.setPixel(x, y, replacement);
                 }
             }
         }
     }
-    return image;
 }
 
 } // namespace compositor

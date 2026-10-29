@@ -62,8 +62,9 @@ void checkComposition() {
     const Color background{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
     const Compositor compositor;
-    const Scene empty{2, 2, background, {}};
-    const auto blank = compositor.render(empty);
+    const Scene empty{{}};
+    Image blank{2, 2, background};
+    compositor.render(empty, blank);
     for (std::size_t y = 0; y < 2; ++y) {
         for (std::size_t x = 0; x < 2; ++x) {
             require(blank.at(x, y) == PixelState{background}, "Empty scene background");
@@ -74,7 +75,7 @@ void checkComposition() {
     // 0 1 1 .
     // 0 2 2 .
     // 3 2 2 .
-    const Scene scene{4, 3, background, {
+    const Scene scene{{
         Rectangle{-1, 0, 4, 2, red, -5},
         Rectangle{1, -1, 2, 3, blue, 7},
         Rectangle{1, 1, 2, 5, green, 7},
@@ -83,10 +84,20 @@ void checkComposition() {
         Rectangle{-4, -4, 1, 1, red, 100}}};
     const int expected[3][4] = {{0, 1, 1, -1}, {0, 2, 2, -1}, {3, 2, 2, -1}};
     const auto original = scene.rectangles();
-    const auto image = compositor.render(scene);
-    const auto repeated = compositor.render(scene);
+    Image image{4, 3, background};
+    Image repeated{4, 3, background};
+    compositor.render(scene, image);
+    compositor.render(scene, repeated);
     require(image.width() == 4 && image.height() == 3, "Result dimensions");
     require(scene.rectangles() == original, "Scene must not change");
+    Image small{1, 1, blue};
+    compositor.render(scene, small);
+    require(small.at(0, 0) == PixelState{red, RectangleMetadata{-5, 0}},
+            "Same scene uses the supplied canvas dimensions");
+    Image wide{5, 3, blue};
+    compositor.render(scene, wide);
+    require(wide.colorAt(3, 0) == blue && !wide.at(3, 0).winner,
+            "Initial color belongs to the canvas");
     for (std::size_t y = 0; y < 3; ++y) {
         for (std::size_t x = 0; x < 4; ++x) {
             const int index = expected[y][x];

@@ -41,16 +41,13 @@ void checkModel() {
     const Rectangle large{maximum, maximum, maximum, maximum, red, maximum};
     require(large.right() == 2LL * maximum && large.bottom() == 2LL * maximum);
 
-    const Scene scene{3, 2, background, {outside, large}};
+    const Scene scene{{outside, large}};
     require(scene.rectangles()[0] == outside && scene.rectangles()[1] == large);
-    requireThrows<std::invalid_argument>([&] { Scene{0, 1, background, {}}; });
-    requireThrows<std::invalid_argument>([&] { Scene{1, 0, background, {}}; });
-    requireThrows<std::invalid_argument>([&] { Scene{0, 0, background, {}}; });
-    const Scene emptyScene{1, 1, background, {}};
+    const Scene emptyScene{{}};
     require(emptyScene.rectangles().empty());
-    Image emptyImage{emptyScene.width(), emptyScene.height(), emptyScene.background()};
+    Image emptyImage{1, 1, background};
     require(emptyImage.at(0, 0) == PixelState{background});
-    Image image{scene.width(), scene.height(), scene.background()};
+    Image image{3, 2, background};
     require(image.width() == 3 && image.height() == 2);
     for (std::size_t y = 0; y < image.height(); ++y) {
         for (std::size_t x = 0; x < image.width(); ++x) {
