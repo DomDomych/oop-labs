@@ -11,6 +11,11 @@ namespace compositor {
 class Image {
 public:
     Image(std::size_t width, std::size_t height, Color initialColor);
+    Image(const Image&) = default;
+    // The source becomes empty (0 x 0); pixel access then throws out_of_range.
+    Image(Image&& other) noexcept;
+    Image& operator=(const Image&) = delete;
+    Image& operator=(Image&&) = delete;
 
     std::size_t width() const noexcept;
     std::size_t height() const noexcept;
