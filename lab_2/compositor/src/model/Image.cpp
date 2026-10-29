@@ -1,8 +1,16 @@
 #include "model/Image.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 namespace compositor {
+
+void Image::swap(Image& other) noexcept {
+    using std::swap;
+    swap(width_, other.width_);
+    swap(height_, other.height_);
+    pixels_.swap(other.pixels_);
+}
 
 std::size_t Image::width() const noexcept { return width_; }
 
