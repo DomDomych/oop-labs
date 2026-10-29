@@ -1,4 +1,6 @@
 #include "rendering/Compositor.hpp"
+#include "execution/SequentialExecutor.hpp"
+#include "synchronization/NoLockPolicy.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -41,7 +43,9 @@ void requireEqual(const Image& left, const Image& right) {
 void checkTransaction() {
     static_assert(noexcept(std::declval<Image&>().swap(std::declval<Image&>())));
     const Color white{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
-    const Compositor compositor{2, 1};
+    SequentialExecutor compositorExecutor;
+    const NoLockPolicy compositorPolicy;
+    const Compositor compositor{2, 1, compositorExecutor, compositorPolicy};
     Image canvas{3, 2, white};
     canvas.setPixel(1, 0, PixelState{red, RectangleMetadata{100, 42}});
     const Image original = canvas;
