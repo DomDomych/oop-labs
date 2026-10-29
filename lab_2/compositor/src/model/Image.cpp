@@ -4,6 +4,10 @@
 
 namespace compositor {
 
+std::size_t Image::width() const noexcept { return width_; }
+
+std::size_t Image::height() const noexcept { return height_; }
+
 Image::Image(std::size_t width, std::size_t height, Color background)
     : width_(width), height_(height) {
     if (width == 0 || height == 0) {

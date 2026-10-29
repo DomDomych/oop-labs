@@ -12,8 +12,8 @@ class Image {
 public:
     Image(std::size_t width, std::size_t height, Color background);
 
-    std::size_t width() const noexcept { return width_; }
-    std::size_t height() const noexcept { return height_; }
+    std::size_t width() const noexcept;
+    std::size_t height() const noexcept;
 
     const PixelState& at(std::size_t x, std::size_t y) const;
     void setPixel(std::size_t x, std::size_t y, const PixelState& state);
