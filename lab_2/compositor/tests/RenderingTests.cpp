@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string_view>
+#include <utility>
 
 namespace {
 using namespace compositor;
@@ -114,6 +115,21 @@ void checkComposition() {
     const Color background{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
     const Compositor compositor{2, 2};
+    Image movedSource{1, 1, background};
+    Image owner{std::move(movedSource)};
+    bool rejectedEmptyScene = false, rejectedNonemptyScene = false;
+    try { compositor.render(Scene{{}}, movedSource); }
+    catch (const std::invalid_argument&) { rejectedEmptyScene = true; }
+    try { compositor.render(Scene{{Rectangle{0, 0, 1, 1, red, 0}}}, movedSource); }
+    catch (const std::invalid_argument&) { rejectedNonemptyScene = true; }
+    require(rejectedEmptyScene && rejectedNonemptyScene, "Moved-from canvas must be rejected");
+    require(movedSource.width() == 0 && movedSource.height() == 0,
+            "Rejection must preserve the empty state");
+    require(owner.at(0, 0) == PixelState{background}, "Moved storage must remain unchanged");
+    movedSource.swap(owner);
+    compositor.render(Scene{{Rectangle{0, 0, 1, 1, red, 0}}}, movedSource);
+    require(movedSource.colorAt(0, 0) == red, "Restored canvas can be rendered again");
+
     const Scene empty{{}};
     Image blank{2, 2, background};
     compositor.render(empty, blank);
