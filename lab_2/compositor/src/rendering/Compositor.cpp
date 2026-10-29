@@ -6,8 +6,10 @@
 
 namespace compositor {
 
-Compositor::Compositor(std::size_t regionWidth, std::size_t regionHeight)
-    : regionWidth_(regionWidth), regionHeight_(regionHeight) {
+Compositor::Compositor(std::size_t regionWidth, std::size_t regionHeight,
+                       IExecutor& executor, const IRegionAccessPolicy& accessPolicy)
+    : executor_(executor), accessPolicy_(accessPolicy),
+      regionWidth_(regionWidth), regionHeight_(regionHeight) {
     if (regionWidth == 0 || regionHeight == 0) {
         throw std::invalid_argument("Region dimensions must be positive");
     }
@@ -23,10 +25,10 @@ void Compositor::render(const Scene& scene, Image& canvas) const {
     }
     Image working = canvas;
     {
-        detail::RectanglePainter painter{working, regionWidth_, regionHeight_};
-        for (std::size_t index = 0; index < rectangles.size(); ++index) {
-            painter.paint(rectangles[index], index);
-        }
+        detail::RectanglePainter painter{working, regionWidth_, regionHeight_, accessPolicy_};
+        executor_.execute(rectangles.size(), [&](std::size_t index) {
+            painter.paint(rectangles.at(index), index);
+        });
     }
     canvas.swap(working);
 }
