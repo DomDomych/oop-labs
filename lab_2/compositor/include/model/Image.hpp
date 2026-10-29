@@ -19,6 +19,9 @@ public:
     void setPixel(std::size_t x, std::size_t y, const PixelState& state);
     Color colorAt(std::size_t x, std::size_t y) const;
 
+    // Exchanges complete storage without allocation; commits a prepared result.
+    void swap(Image& other) noexcept;
+
 private:
     std::size_t offset(std::size_t x, std::size_t y) const;
 
