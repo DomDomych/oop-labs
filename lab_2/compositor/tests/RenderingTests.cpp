@@ -1,4 +1,6 @@
 #include "rendering/Compositor.hpp"
+#include "execution/SequentialExecutor.hpp"
+#include "synchronization/NoLockPolicy.hpp"
 #include "rendering/OverlayRule.hpp"
 #include "rendering/RectangleClipper.hpp"
 
@@ -95,7 +97,9 @@ void checkRegionTraversal() {
         for (const auto rh : {std::size_t{1}, std::size_t{2}, std::size_t{3},
                               std::size_t{5}, std::size_t{8}, maximum}) {
             Image actual{7, 5, background};
-            const Compositor renderer{rw, rh};
+            SequentialExecutor rendererExecutor;
+    const NoLockPolicy rendererPolicy;
+    const Compositor renderer{rw, rh, rendererExecutor, rendererPolicy};
             renderer.render(scene, actual);
             for (std::size_t y = 0; y < 5; ++y) {
                 for (std::size_t x = 0; x < 7; ++x) {
@@ -105,16 +109,20 @@ void checkRegionTraversal() {
             }
         }
     }
+    SequentialExecutor validationExecutor;
+    const NoLockPolicy validationPolicy;
     bool rejectedWidth = false, rejectedHeight = false;
-    try { Compositor{0, 1}; } catch (const std::invalid_argument&) { rejectedWidth = true; }
-    try { Compositor{1, 0}; } catch (const std::invalid_argument&) { rejectedHeight = true; }
+    try { Compositor{0, 1, validationExecutor, validationPolicy}; } catch (const std::invalid_argument&) { rejectedWidth = true; }
+    try { Compositor{1, 0, validationExecutor, validationPolicy}; } catch (const std::invalid_argument&) { rejectedHeight = true; }
     require(rejectedWidth && rejectedHeight, "Zero region dimensions must be rejected");
 }
 
 void checkComposition() {
     const Color background{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
-    const Compositor compositor{2, 2};
+    SequentialExecutor compositorExecutor;
+    const NoLockPolicy compositorPolicy;
+    const Compositor compositor{2, 2, compositorExecutor, compositorPolicy};
     Image movedSource{1, 1, background};
     Image owner{std::move(movedSource)};
     bool rejectedEmptyScene = false, rejectedNonemptyScene = false;
@@ -186,7 +194,9 @@ void checkComposition() {
 void checkRepeatedCalls() {
     const Color white{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
-    const Compositor compositor{2, 2};
+    SequentialExecutor compositorExecutor;
+    const NoLockPolicy compositorPolicy;
+    const Compositor compositor{2, 2, compositorExecutor, compositorPolicy};
     Image canvas{4, 2, white};
     compositor.render(Scene{{Rectangle{0, 0, 4, 1, red, 100}}}, canvas);
     const auto oldPixel = canvas.at(3, 0);
@@ -222,7 +232,9 @@ void checkRepeatedCalls() {
         }
     }
 
-    const Compositor anotherCompositor{3, 1};
+    SequentialExecutor anotherCompositorExecutor;
+    const NoLockPolicy anotherCompositorPolicy;
+    const Compositor anotherCompositor{3, 1, anotherCompositorExecutor, anotherCompositorPolicy};
     anotherCompositor.render(Scene{{Rectangle{1, 0, 1, 1, red, -5}}}, canvas);
     require(canvas.at(1, 0) == PixelState{red, RectangleMetadata{-5, 0}},
             "A new call ignores old indices, independent of compositor identity");
