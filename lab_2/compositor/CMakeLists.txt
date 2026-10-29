@@ -13,6 +13,7 @@ set_target_properties(compositor_model PROPERTIES CXX_EXTENSIONS OFF)
 
 add_library(compositor_rendering
     src/rendering/RectangleClipper.cpp
+    src/rendering/RegionGrid.cpp
     src/rendering/OverlayRule.cpp
     src/rendering/Compositor.cpp
 )
@@ -30,4 +31,10 @@ if(BUILD_TESTING)
         add_test(NAME compositor_${component}_tests
                  COMMAND compositor_rendering_tests ${component})
     endforeach()
+    add_executable(compositor_grid_tests tests/RegionGridTests.cpp)
+    target_link_libraries(compositor_grid_tests PRIVATE compositor_rendering)
+    add_test(NAME compositor_grid_tests COMMAND compositor_grid_tests)
+    add_executable(compositor_transaction_tests tests/RenderTransactionTests.cpp)
+    target_link_libraries(compositor_transaction_tests PRIVATE compositor_rendering)
+    add_test(NAME compositor_transaction_tests COMMAND compositor_transaction_tests)
 endif()
