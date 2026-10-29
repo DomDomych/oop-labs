@@ -26,7 +26,7 @@ if(BUILD_TESTING)
     add_test(NAME compositor_model_tests COMMAND compositor_model_tests)
     add_executable(compositor_rendering_tests tests/RenderingTests.cpp)
     target_link_libraries(compositor_rendering_tests PRIVATE compositor_rendering)
-    foreach(component IN ITEMS clipping overlay composition)
+    foreach(component IN ITEMS clipping overlay composition repeated_calls)
         add_test(NAME compositor_${component}_tests
                  COMMAND compositor_rendering_tests ${component})
     endforeach()

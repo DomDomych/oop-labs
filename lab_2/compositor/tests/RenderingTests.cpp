@@ -114,12 +114,60 @@ void checkComposition() {
         }
     }
 }
+
+void checkRepeatedCalls() {
+    const Color white{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
+    const Color green{0, 255, 0};
+    const Compositor compositor;
+    Image canvas{4, 2, white};
+    compositor.render(Scene{{Rectangle{0, 0, 4, 1, red, 100}}}, canvas);
+    const auto oldPixel = canvas.at(3, 0);
+
+    // Even INT_MIN beats the previous call's priority. Within this call,
+    // a lower-priority object loses and a later equal-priority object wins.
+    const int minimum = std::numeric_limits<int>::min();
+    const Scene next{{
+        Rectangle{0, 0, 3, 1, blue, minimum},
+        Rectangle{1, 0, 2, 1, green, -5},
+        Rectangle{1, 0, 2, 1, red, minimum},
+        Rectangle{2, 0, 1, 1, blue, -5}}};
+    compositor.render(next, canvas);
+    require(canvas.at(0, 0) == PixelState{blue, RectangleMetadata{minimum, 0}},
+            "Old priority must not affect a new call, even with the same index");
+    require(canvas.at(1, 0) == PixelState{green, RectangleMetadata{-5, 1}},
+            "Current call keeps the greater priority");
+    require(canvas.at(2, 0) == PixelState{blue, RectangleMetadata{-5, 3}},
+            "Current call breaks ties using input order");
+    require(canvas.at(3, 0) == oldPixel, "Uncovered old pixel keeps metadata and color");
+    for (std::size_t x = 0; x < 4; ++x) {
+        require(canvas.at(x, 1) == PixelState{white}, "Uncovered background stays intact");
+    }
+
+    const Image previous = canvas;
+    compositor.render(Scene{{}}, canvas);
+    compositor.render(Scene{{Rectangle{4, 0, 1, 1, red, 999}}}, canvas);
+    compositor.render(next, canvas);
+    for (std::size_t y = 0; y < canvas.height(); ++y) {
+        for (std::size_t x = 0; x < canvas.width(); ++x) {
+            require(canvas.at(x, y) == previous.at(x, y),
+                    "Empty, outside and repeated same-scene calls preserve the result");
+        }
+    }
+
+    const Compositor anotherCompositor;
+    anotherCompositor.render(Scene{{Rectangle{1, 0, 1, 1, red, -5}}}, canvas);
+    require(canvas.at(1, 0) == PixelState{red, RectangleMetadata{-5, 0}},
+            "A new call ignores old indices, independent of compositor identity");
+    Image fresh{4, 2, white};
+    compositor.render(next, fresh);
+    require(fresh.at(3, 0) == PixelState{white}, "Call state must not leak between canvases");
+}
 } // namespace
 
 int main(int argc, char** argv) {
     try {
         if (argc != 2) {
-            throw std::invalid_argument("Expected clipping, overlay or composition");
+            throw std::invalid_argument("Expected clipping, overlay, composition or repeated_calls");
         }
         const std::string_view component{argv[1]};
         if (component == "clipping") {
@@ -128,6 +176,8 @@ int main(int argc, char** argv) {
             checkOverlay();
         } else if (component == "composition") {
             checkComposition();
+        } else if (component == "repeated_calls") {
+            checkRepeatedCalls();
         } else {
             throw std::invalid_argument("Unknown test component");
         }

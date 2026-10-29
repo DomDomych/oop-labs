@@ -9,6 +9,7 @@ namespace compositor {
 
 struct RectangleMetadata {
     int priority;
+    // Position in the scene of the render call that last changed this pixel.
     std::size_t index;
 
     bool operator==(const RectangleMetadata&) const = default;
