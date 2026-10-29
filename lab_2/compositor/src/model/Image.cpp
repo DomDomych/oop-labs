@@ -8,7 +8,7 @@ std::size_t Image::width() const noexcept { return width_; }
 
 std::size_t Image::height() const noexcept { return height_; }
 
-Image::Image(std::size_t width, std::size_t height, Color background)
+Image::Image(std::size_t width, std::size_t height, Color initialColor)
     : width_(width), height_(height) {
     if (width == 0 || height == 0) {
         throw std::invalid_argument("Image dimensions must be positive");
@@ -16,7 +16,7 @@ Image::Image(std::size_t width, std::size_t height, Color background)
     if (width > pixels_.max_size() / height) {
         throw std::length_error("Image dimensions exceed storage capacity");
     }
-    pixels_.assign(width * height, PixelState{background});
+    pixels_.assign(width * height, PixelState{initialColor});
 }
 
 std::size_t Image::offset(std::size_t x, std::size_t y) const {

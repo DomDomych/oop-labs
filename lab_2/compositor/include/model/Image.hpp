@@ -10,7 +10,7 @@ namespace compositor {
 // Fixed-size storage. Synchronization belongs to the caller, not this model.
 class Image {
 public:
-    Image(std::size_t width, std::size_t height, Color background);
+    Image(std::size_t width, std::size_t height, Color initialColor);
 
     std::size_t width() const noexcept;
     std::size_t height() const noexcept;
