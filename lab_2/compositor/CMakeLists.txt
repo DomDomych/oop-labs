@@ -16,6 +16,7 @@ add_library(compositor_rendering
     src/rendering/RegionGrid.cpp
     src/rendering/OverlayRule.cpp
     src/rendering/Compositor.cpp
+    src/rendering/RectanglePainter.cpp
 )
 target_link_libraries(compositor_rendering PUBLIC compositor_model)
 set_target_properties(compositor_rendering PROPERTIES CXX_EXTENSIONS OFF)
