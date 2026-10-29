@@ -14,6 +14,7 @@ void Compositor::render(const Scene& scene, Image& canvas) const {
     if (rectangles.empty()) {
         return;
     }
+    Image working = canvas;
     // Call-local bookkeeping: old winner metadata remains intact until overwritten.
     // Image construction has already validated the pixel count.
     std::vector<std::uint8_t> touched(canvas.width() * canvas.height(), 0);
@@ -28,13 +29,14 @@ void Compositor::render(const Scene& scene, Image& canvas) const {
         for (std::size_t y = bounds->top; y < bounds->bottom; ++y) {
             for (std::size_t x = bounds->left; x < bounds->right; ++x) {
                 auto& visited = touched[y * canvas.width() + x];
-                if (!visited || shouldReplace(canvas.at(x, y), candidate)) {
-                    canvas.setPixel(x, y, replacement);
+                if (!visited || shouldReplace(working.at(x, y), candidate)) {
+                    working.setPixel(x, y, replacement);
                 }
                 visited = 1;
             }
         }
     }
+    canvas.swap(working);
 }
 
 } // namespace compositor
