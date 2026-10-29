@@ -58,10 +58,62 @@ void checkOverlay() {
     require(!shouldReplace(current, {5, 3}), "Identical candidate needs no update");
 }
 
+void checkRegionTraversal() {
+    const Color background{12, 34, 56}, red{255, 0, 0}, blue{0, 0, 255};
+    const Scene scene{{
+        Rectangle{-2, -1, 6, 4, red, -10},
+        Rectangle{2, 1, 5, 3, blue, 7},
+        Rectangle{3, 2, 2, 6, red, 7},
+        Rectangle{0, 3, 9, 2, blue, -20},
+        Rectangle{7, 0, 2, 2, red, 999},
+        Rectangle{0, 5, 2, 2, red, 999}}};
+
+    // Independent per-pixel reference: no clipper, grid or production overlay rule.
+    Image expected{7, 5, background};
+    for (int y = 0; y < 5; ++y) {
+        for (int x = 0; x < 7; ++x) {
+            std::optional<std::size_t> winner;
+            for (std::size_t i = 0; i < scene.rectangles().size(); ++i) {
+                const auto& rectangle = scene.rectangles()[i];
+                if (x < rectangle.x() || x >= rectangle.right() ||
+                    y < rectangle.y() || y >= rectangle.bottom()) continue;
+                if (!winner || rectangle.priority() >= scene.rectangles()[*winner].priority()) {
+                    winner = i;
+                }
+            }
+            if (winner) {
+                const auto& rectangle = scene.rectangles()[*winner];
+                expected.setPixel(x, y, PixelState{
+                    rectangle.color(), RectangleMetadata{rectangle.priority(), *winner}});
+            }
+        }
+    }
+    const auto maximum = std::numeric_limits<std::size_t>::max();
+    for (const auto rw : {std::size_t{1}, std::size_t{2}, std::size_t{3},
+                          std::size_t{7}, std::size_t{10}, maximum}) {
+        for (const auto rh : {std::size_t{1}, std::size_t{2}, std::size_t{3},
+                              std::size_t{5}, std::size_t{8}, maximum}) {
+            Image actual{7, 5, background};
+            const Compositor renderer{rw, rh};
+            renderer.render(scene, actual);
+            for (std::size_t y = 0; y < 5; ++y) {
+                for (std::size_t x = 0; x < 7; ++x) {
+                    require(actual.at(x, y) == expected.at(x, y),
+                            "Region dimensions must not affect colors or metadata");
+                }
+            }
+        }
+    }
+    bool rejectedWidth = false, rejectedHeight = false;
+    try { Compositor{0, 1}; } catch (const std::invalid_argument&) { rejectedWidth = true; }
+    try { Compositor{1, 0}; } catch (const std::invalid_argument&) { rejectedHeight = true; }
+    require(rejectedWidth && rejectedHeight, "Zero region dimensions must be rejected");
+}
+
 void checkComposition() {
     const Color background{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
-    const Compositor compositor;
+    const Compositor compositor{2, 2};
     const Scene empty{{}};
     Image blank{2, 2, background};
     compositor.render(empty, blank);
@@ -118,7 +170,7 @@ void checkComposition() {
 void checkRepeatedCalls() {
     const Color white{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
     const Color green{0, 255, 0};
-    const Compositor compositor;
+    const Compositor compositor{2, 2};
     Image canvas{4, 2, white};
     compositor.render(Scene{{Rectangle{0, 0, 4, 1, red, 100}}}, canvas);
     const auto oldPixel = canvas.at(3, 0);
@@ -154,7 +206,7 @@ void checkRepeatedCalls() {
         }
     }
 
-    const Compositor anotherCompositor;
+    const Compositor anotherCompositor{3, 1};
     anotherCompositor.render(Scene{{Rectangle{1, 0, 1, 1, red, -5}}}, canvas);
     require(canvas.at(1, 0) == PixelState{red, RectangleMetadata{-5, 0}},
             "A new call ignores old indices, independent of compositor identity");
@@ -176,6 +228,7 @@ int main(int argc, char** argv) {
             checkOverlay();
         } else if (component == "composition") {
             checkComposition();
+            checkRegionTraversal();
         } else if (component == "repeated_calls") {
             checkRepeatedCalls();
         } else {
