@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rendering/RectangleClipper.hpp"
+#include "rendering/PixelBounds.hpp"
 
 #include <cstddef>
 
