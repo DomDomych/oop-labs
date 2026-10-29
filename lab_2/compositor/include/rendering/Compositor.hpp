@@ -11,7 +11,8 @@ public:
     // Priorities and input indices apply only within this invocation.
     // Uncovered pixels keep their complete previous state; an empty scene is a no-op.
     // Calls accessing the same canvas must not overlap.
-    // Scratch allocation happens before writes; allocation errors propagate.
+    // Strong exception guarantee: any exception leaves the canvas unchanged.
+    // Successful rendering replaces storage and invalidates references to pixels.
     void render(const Scene& scene, Image& canvas) const;
 };
 
