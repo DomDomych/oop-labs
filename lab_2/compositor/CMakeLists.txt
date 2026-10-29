@@ -41,7 +41,16 @@ target_link_libraries(compositor_rendering PUBLIC compositor_model compositor_ex
 set_target_properties(compositor_rendering PROPERTIES CXX_EXTENSIONS OFF)
 
 include(CTest)
+find_package(Boost 1.75 CONFIG REQUIRED COMPONENTS json)
+add_library(compositor_input src/input/JsonConfigLoader.cpp)
+target_link_libraries(compositor_input PUBLIC compositor_model PRIVATE Boost::json)
+set_target_properties(compositor_input PROPERTIES CXX_EXTENSIONS OFF)
+
 if(BUILD_TESTING)
+    add_executable(compositor_input_tests tests/InputTests.cpp)
+    target_link_libraries(compositor_input_tests PRIVATE compositor_input)
+    add_test(NAME compositor_input_tests COMMAND compositor_input_tests
+             ${CMAKE_CURRENT_SOURCE_DIR}/configs/example.json)
     add_executable(compositor_model_tests tests/ModelTests.cpp)
     target_link_libraries(compositor_model_tests PRIVATE compositor_model)
     add_test(NAME compositor_model_tests COMMAND compositor_model_tests)
