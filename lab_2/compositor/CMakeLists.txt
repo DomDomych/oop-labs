@@ -5,6 +5,7 @@ add_library(compositor_model
     src/model/Color.cpp
     src/model/Rectangle.cpp
     src/model/Image.cpp
+    src/model/Scene.cpp
 )
 target_include_directories(compositor_model PUBLIC include)
 target_compile_features(compositor_model PUBLIC cxx_std_20)
