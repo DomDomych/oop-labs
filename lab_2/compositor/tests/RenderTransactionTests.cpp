@@ -41,7 +41,7 @@ void requireEqual(const Image& left, const Image& right) {
 void checkTransaction() {
     static_assert(noexcept(std::declval<Image&>().swap(std::declval<Image&>())));
     const Color white{255, 255, 255}, red{255, 0, 0}, blue{0, 0, 255};
-    const Compositor compositor;
+    const Compositor compositor{2, 1};
     Image canvas{3, 2, white};
     canvas.setPixel(1, 0, PixelState{red, RectangleMetadata{100, 42}});
     const Image original = canvas;
