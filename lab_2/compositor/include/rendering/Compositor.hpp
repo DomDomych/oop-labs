@@ -13,6 +13,7 @@ public:
     Compositor(std::size_t regionWidth, std::size_t regionHeight);
 
     // Draws sequentially onto a caller-owned canvas without changing the scene.
+    // An empty moved-from canvas is rejected with invalid_argument, even for an empty scene.
     // Priorities and input indices apply only within this invocation.
     // Uncovered pixels keep their complete previous state; an empty scene is a no-op.
     // Calls accessing the same canvas must not overlap.
