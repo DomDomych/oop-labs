@@ -46,7 +46,26 @@ add_library(compositor_input src/input/JsonConfigLoader.cpp)
 target_link_libraries(compositor_input PUBLIC compositor_model PRIVATE Boost::json)
 set_target_properties(compositor_input PROPERTIES CXX_EXTENSIONS OFF)
 
+add_library(compositor_output src/output/PpmWriter.cpp)
+target_link_libraries(compositor_output PUBLIC compositor_model)
+set_target_properties(compositor_output PROPERTIES CXX_EXTENSIONS OFF)
+
+add_library(compositor_application src/application/RenderApplication.cpp)
+target_link_libraries(compositor_application PUBLIC compositor_rendering)
+set_target_properties(compositor_application PROPERTIES CXX_EXTENSIONS OFF)
+
+add_executable(compositor src/main.cpp)
+target_link_libraries(compositor PRIVATE compositor_application compositor_input compositor_output)
+set_target_properties(compositor PROPERTIES CXX_EXTENSIONS OFF)
+
 if(BUILD_TESTING)
+    add_executable(compositor_application_tests tests/ApplicationTests.cpp)
+    target_link_libraries(compositor_application_tests PRIVATE compositor_application compositor_output)
+    add_test(NAME compositor_application_tests COMMAND compositor_application_tests)
+    add_test(NAME compositor_cli_tests COMMAND ${CMAKE_COMMAND}
+             -DPROGRAM=$<TARGET_FILE:compositor>
+             -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR}/cli-test-output
+             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/CliTests.cmake)
     add_executable(compositor_input_tests tests/InputTests.cpp)
     target_link_libraries(compositor_input_tests PRIVATE compositor_input)
     add_test(NAME compositor_input_tests COMMAND compositor_input_tests
