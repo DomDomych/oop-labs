@@ -1,0 +1,33 @@
+file(MAKE_DIRECTORY "${TEST_DIR}")
+set(config "${TEST_DIR}/run.json")
+file(WRITE "${config}" [=[{
+  "canvas":{"width":1,"height":1,"background":[255,255,255]},
+  "render":{"mode":"parallel-safe","threads":2,"region":{"width":1,"height":1}},
+  "rectangles":[{"x":0,"y":0,"width":1,"height":1,"color":[1,2,3],"priority":0}],
+  "output":{"image":"result.ppm"}
+}]=])
+execute_process(COMMAND "${PROGRAM}" "${config}" RESULT_VARIABLE result ERROR_VARIABLE error)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "CLI render failed: ${error}")
+endif()
+file(READ "${TEST_DIR}/result.ppm" bytes HEX)
+if(NOT bytes STREQUAL "50360a3120310a3235350a010203")
+    message(FATAL_ERROR "Wrong PPM bytes: ${bytes}")
+endif()
+execute_process(COMMAND "${PROGRAM}" RESULT_VARIABLE result ERROR_VARIABLE error)
+if(NOT result EQUAL 2 OR NOT error MATCHES "Usage:")
+    message(FATAL_ERROR "Missing argument must print usage and return 2")
+endif()
+execute_process(COMMAND "${PROGRAM}" "${config}" extra RESULT_VARIABLE result)
+if(NOT result EQUAL 2)
+    message(FATAL_ERROR "Extra argument must be rejected")
+endif()
+file(WRITE "${config}" "{broken")
+execute_process(COMMAND "${PROGRAM}" "${config}" RESULT_VARIABLE result ERROR_VARIABLE error)
+if(NOT result EQUAL 1 OR NOT error MATCHES "JSON")
+    message(FATAL_ERROR "Bad input must return 1 with diagnostics")
+endif()
+file(READ "${TEST_DIR}/result.ppm" after HEX)
+if(NOT after STREQUAL bytes)
+    message(FATAL_ERROR "Bad input modified previous output")
+endif()
