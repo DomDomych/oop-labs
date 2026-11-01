@@ -70,7 +70,8 @@ add_library(compositor_output src/output/PpmWriter.cpp)
 target_link_libraries(compositor_output PUBLIC compositor_model)
 set_target_properties(compositor_output PROPERTIES CXX_EXTENSIONS OFF)
 
-add_library(compositor_application src/application/RenderApplication.cpp src/application/LoggingSetup.cpp)
+add_library(compositor_application src/application/RenderApplication.cpp src/application/LoggingSetup.cpp
+    src/application/RenderComponents.cpp)
 target_link_libraries(compositor_application PUBLIC compositor_rendering compositor_logging)
 if(COMPOSITOR_WITH_LOKI_HTTP)
     target_link_libraries(compositor_application PRIVATE compositor_logging_http)
@@ -82,7 +83,50 @@ add_executable(compositor src/main.cpp)
 target_link_libraries(compositor PRIVATE compositor_application compositor_input compositor_output)
 set_target_properties(compositor PROPERTIES CXX_EXTENSIONS OFF)
 
+# Configure-time provenance: reconfigure after changing the checkout for a new report.
+find_package(Git QUIET)
+set(BENCH_REVISION "unknown")
+set(BENCH_DIRTY "unknown")
+if(Git_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE BENCH_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    execute_process(COMMAND ${GIT_EXECUTABLE} status --porcelain WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE BENCH_STATUS ERROR_QUIET)
+    if(BENCH_STATUS)
+        set(BENCH_DIRTY "true")
+    else()
+        set(BENCH_DIRTY "false")
+    endif()
+endif()
+add_library(compositor_benchmark
+    src/benchmark/BenchmarkResult.cpp
+    src/benchmark/ImageComparator.cpp
+    src/benchmark/BenchmarkRunner.cpp
+    src/benchmark/SceneGenerator.cpp
+    src/benchmark/BenchmarkPlan.cpp
+    src/benchmark/JsonBenchmarkReportWriter.cpp
+)
+target_link_libraries(compositor_benchmark PUBLIC compositor_rendering compositor_input PRIVATE Boost::json)
+target_compile_definitions(compositor_benchmark PRIVATE
+    COMPOSITOR_BENCH_COMPILER="${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
+    COMPOSITOR_BENCH_CONFIGURATION="$<CONFIG>"
+    COMPOSITOR_BENCH_REVISION="${BENCH_REVISION}"
+    COMPOSITOR_BENCH_DIRTY="${BENCH_DIRTY}"
+    COMPOSITOR_BENCH_PLATFORM="${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}")
+set_target_properties(compositor_benchmark PROPERTIES CXX_EXTENSIONS OFF)
+add_executable(compositor_bench src/benchmark_main.cpp)
+target_link_libraries(compositor_bench PRIVATE compositor_benchmark compositor_application)
+set_target_properties(compositor_bench PROPERTIES CXX_EXTENSIONS OFF)
+
 if(BUILD_TESTING)
+    add_executable(compositor_benchmark_tests tests/BenchmarkTests.cpp)
+    target_link_libraries(compositor_benchmark_tests PRIVATE compositor_benchmark compositor_application Boost::json)
+    add_test(NAME compositor_benchmark_tests COMMAND compositor_benchmark_tests)
+    add_test(NAME compositor_benchmark_cli_tests COMMAND ${CMAKE_COMMAND}
+             -DPROGRAM=$<TARGET_FILE:compositor_bench>
+             -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR}/benchmark-test-output
+             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/BenchmarkCliTests.cmake)
+    set_tests_properties(compositor_benchmark_tests compositor_benchmark_cli_tests PROPERTIES TIMEOUT 30)
     add_executable(compositor_logging_tests tests/LoggingTests.cpp)
     target_link_libraries(compositor_logging_tests PRIVATE compositor_logging compositor_input compositor_application Boost::json)
     add_test(NAME compositor_logging_tests COMMAND compositor_logging_tests)
