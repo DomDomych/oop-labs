@@ -1,4 +1,5 @@
 #include "input/JsonConfigLoader.hpp"
+#include "LoggingConfigParser.hpp"
 
 #include "model/PixelState.hpp"
 
@@ -24,7 +25,8 @@ namespace json = boost::json;
 }
 
 void validateObject(const json::value& value, std::string field,
-                           std::initializer_list<std::string_view> keys) {
+                           std::initializer_list<std::string_view> keys,
+                           std::initializer_list<std::string_view> optional = {}) {
     if (!value.is_object()) fail(field, "expected an object");
     const auto& result = value.as_object();
     for (const auto key : keys) {
@@ -32,7 +34,8 @@ void validateObject(const json::value& value, std::string field,
     }
     for (const auto& item : result) {
         const std::string_view key{item.key().data(), item.key().size()};
-        if (std::find(keys.begin(), keys.end(), key) == keys.end()) {
+        if (std::find(keys.begin(), keys.end(), key) == keys.end() &&
+            std::find(optional.begin(), optional.end(), key) == optional.end()) {
             fail(field + "." + std::string(key), "unknown field");
         }
     }
@@ -74,7 +77,7 @@ std::string string(const json::value& value, const std::string& field) {
 }
 
 RunConfig decode(const json::value& value, const std::filesystem::path& directory) {
-    validateObject(value, "$", {"canvas", "render", "rectangles", "output"});
+    validateObject(value, "$", {"canvas", "render", "rectangles", "output"}, {"logging"});
     const auto& root = value.as_object();
     validateObject(root.at("canvas"), "canvas", {"width", "height", "background"});
     const auto& canvas = root.at("canvas").as_object();
@@ -119,7 +122,15 @@ RunConfig decode(const json::value& value, const std::filesystem::path& director
         fail("output.image", "expected a nonempty path without NUL characters");
     }
     auto outputPath = (directory / std::filesystem::path(outputName)).lexically_normal();
-    return {canvasConfig, renderConfig, Scene{std::move(rectangles)}, std::move(outputPath)};
+    logging::LoggingConfig loggingConfig;
+    if (const auto* settings = root.if_contains("logging"))
+        loggingConfig = detail::parseLoggingConfig(*settings, directory);
+    if (loggingConfig.file) {
+        std::error_code error;
+        if (*loggingConfig.file == outputPath || std::filesystem::equivalent(*loggingConfig.file, outputPath, error))
+            fail("logging.file", "must differ from output.image");
+    }
+    return {canvasConfig, renderConfig, Scene{std::move(rectangles)}, std::move(outputPath), std::move(loggingConfig)};
 }
 } // namespace
 
@@ -133,7 +144,14 @@ RunConfig JsonConfigLoader::load(const std::filesystem::path& path) const {
         boost::system::error_code error;
         auto value = json::parse(contents, error);
         if (error) fail("JSON", error.message());
-        return decode(value, absolutePath.parent_path());
+        auto config = decode(value, absolutePath.parent_path());
+        if (config.logging.file) {
+            std::error_code aliasError;
+            if (*config.logging.file == absolutePath.lexically_normal() ||
+                std::filesystem::equivalent(*config.logging.file, absolutePath, aliasError))
+                fail("logging.file", "must differ from the input configuration");
+        }
+        return config;
     } catch (const std::runtime_error& error) {
         throw std::runtime_error(path.string() + ": " + error.what());
     }
