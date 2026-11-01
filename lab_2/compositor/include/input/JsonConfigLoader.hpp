@@ -9,7 +9,8 @@ namespace compositor {
 class JsonConfigLoader {
 public:
     // Reads and validates the complete configuration before returning.
-    // All schema fields are required; unknown fields are rejected.
+    // Core schema fields are required; logging settings are optional.
+    // Unknown fields are rejected.
     // Relative output paths are resolved against the configuration directory.
     // Input/validation errors throw std::runtime_error with file/field context.
     // Does not create the output file or start rendering.
