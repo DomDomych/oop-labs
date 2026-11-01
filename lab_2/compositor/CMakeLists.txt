@@ -42,7 +42,27 @@ set_target_properties(compositor_rendering PROPERTIES CXX_EXTENSIONS OFF)
 
 include(CTest)
 find_package(Boost 1.75 CONFIG REQUIRED COMPONENTS json)
-add_library(compositor_input src/input/JsonConfigLoader.cpp)
+add_library(compositor_logging
+    src/logging/BufferedLogger.cpp
+    src/logging/JsonLogFormatter.cpp
+    src/logging/StreamLogSink.cpp
+    src/logging/FileLogSink.cpp
+    src/logging/LokiLogSink.cpp
+)
+target_include_directories(compositor_logging PUBLIC include)
+target_compile_features(compositor_logging PUBLIC cxx_std_20)
+target_link_libraries(compositor_logging PUBLIC Threads::Threads PRIVATE Boost::json)
+set_target_properties(compositor_logging PROPERTIES CXX_EXTENSIONS OFF)
+
+option(COMPOSITOR_WITH_LOKI_HTTP "Enable libcurl HTTP transport for Loki" OFF)
+if(COMPOSITOR_WITH_LOKI_HTTP)
+    find_package(CURL REQUIRED)
+    add_library(compositor_logging_http src/logging/CurlHttpTransport.cpp)
+    target_link_libraries(compositor_logging_http PUBLIC compositor_logging PRIVATE CURL::libcurl)
+    set_target_properties(compositor_logging_http PROPERTIES CXX_EXTENSIONS OFF)
+endif()
+
+add_library(compositor_input src/input/JsonConfigLoader.cpp src/input/LoggingConfigParser.cpp)
 target_link_libraries(compositor_input PUBLIC compositor_model PRIVATE Boost::json)
 set_target_properties(compositor_input PROPERTIES CXX_EXTENSIONS OFF)
 
@@ -50,8 +70,12 @@ add_library(compositor_output src/output/PpmWriter.cpp)
 target_link_libraries(compositor_output PUBLIC compositor_model)
 set_target_properties(compositor_output PROPERTIES CXX_EXTENSIONS OFF)
 
-add_library(compositor_application src/application/RenderApplication.cpp)
-target_link_libraries(compositor_application PUBLIC compositor_rendering)
+add_library(compositor_application src/application/RenderApplication.cpp src/application/LoggingSetup.cpp)
+target_link_libraries(compositor_application PUBLIC compositor_rendering compositor_logging)
+if(COMPOSITOR_WITH_LOKI_HTTP)
+    target_link_libraries(compositor_application PRIVATE compositor_logging_http)
+    target_compile_definitions(compositor_application PRIVATE COMPOSITOR_WITH_LOKI_HTTP)
+endif()
 set_target_properties(compositor_application PROPERTIES CXX_EXTENSIONS OFF)
 
 add_executable(compositor src/main.cpp)
@@ -59,6 +83,15 @@ target_link_libraries(compositor PRIVATE compositor_application compositor_input
 set_target_properties(compositor PROPERTIES CXX_EXTENSIONS OFF)
 
 if(BUILD_TESTING)
+    add_executable(compositor_logging_tests tests/LoggingTests.cpp)
+    target_link_libraries(compositor_logging_tests PRIVATE compositor_logging compositor_input compositor_application Boost::json)
+    add_test(NAME compositor_logging_tests COMMAND compositor_logging_tests)
+    if(COMPOSITOR_WITH_LOKI_HTTP)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+        add_test(NAME compositor_loki_http_tests COMMAND ${Python3_EXECUTABLE}
+                 ${CMAKE_CURRENT_SOURCE_DIR}/tests/LokiHttpTests.py $<TARGET_FILE:compositor>)
+        set_tests_properties(compositor_loki_http_tests PROPERTIES TIMEOUT 30)
+    endif()
     add_executable(compositor_application_tests tests/ApplicationTests.cpp)
     target_link_libraries(compositor_application_tests PRIVATE compositor_application compositor_output)
     add_test(NAME compositor_application_tests COMMAND compositor_application_tests)
