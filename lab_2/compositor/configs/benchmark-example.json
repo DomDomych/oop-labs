@@ -1,0 +1,6 @@
+{
+  "input": "example.json",
+  "warmup": 2,
+  "repetitions": 10,
+  "report": "benchmark-report.json"
+}
