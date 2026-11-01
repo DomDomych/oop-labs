@@ -1,0 +1,11 @@
+{
+  "input": "example.json",
+  "warmup": 2,
+  "repetitions": 10,
+  "report": "benchmark-generated-report.json",
+  "generate": {
+    "scenario": "mixed",
+    "rectangles": 1000,
+    "seed": 42
+  }
+}
