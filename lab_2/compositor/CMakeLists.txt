@@ -119,6 +119,16 @@ target_link_libraries(compositor_bench PRIVATE compositor_benchmark compositor_a
 set_target_properties(compositor_bench PROPERTIES CXX_EXTENSIONS OFF)
 
 if(BUILD_TESTING)
+    add_executable(compositor_reference_tests tests/ReferenceTests.cpp)
+    target_link_libraries(compositor_reference_tests PRIVATE compositor_application compositor_input)
+    add_test(NAME compositor_reference_tests COMMAND compositor_reference_tests
+             ${CMAKE_CURRENT_SOURCE_DIR}/demo/reference)
+    add_test(NAME compositor_reference_cli_tests COMMAND ${CMAKE_COMMAND}
+             -DPROGRAM=$<TARGET_FILE:compositor>
+             -DREFERENCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/demo/reference
+             -DTEST_DIR=${CMAKE_CURRENT_BINARY_DIR}/reference-test-output
+             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/ReferenceCliTests.cmake)
+    set_tests_properties(compositor_reference_tests compositor_reference_cli_tests PROPERTIES TIMEOUT 30)
     add_executable(compositor_benchmark_tests tests/BenchmarkTests.cpp)
     target_link_libraries(compositor_benchmark_tests PRIVATE compositor_benchmark compositor_application Boost::json)
     add_test(NAME compositor_benchmark_tests COMMAND compositor_benchmark_tests)
