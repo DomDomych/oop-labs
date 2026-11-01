@@ -2,6 +2,7 @@
 
 #include "model/Color.hpp"
 #include "model/Scene.hpp"
+#include "logging/LoggingConfig.hpp"
 
 #include <cstddef>
 #include <filesystem>
@@ -29,6 +30,7 @@ struct RunConfig {
     RenderConfig render;
     Scene scene;
     std::filesystem::path outputImage;
+    logging::LoggingConfig logging{};
 };
 
 } // namespace compositor
