@@ -5,9 +5,14 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace compositor {
 namespace {
+constexpr unsigned kTemporaryDirectoryReservationAttempts = 64;
+constexpr std::size_t kPpmOutputBufferSize = 12 * 1024;
+constexpr std::string_view kPpmBinaryMagic = "P6";
+
 
 // Reserve a private staging directory atomically, on the destination filesystem.
 // This avoids truncating someone else's temporary file on a name collision.
@@ -15,7 +20,7 @@ class StagingDirectory {
 public:
     explicit StagingDirectory(const std::filesystem::path& parent) {
         std::random_device random;
-        for (unsigned attempt = 0; attempt < 64; ++attempt) {
+        for (unsigned attempt = 0; attempt < kTemporaryDirectoryReservationAttempts; ++attempt) {
             path_ = parent / (".compositor-" + std::to_string(random()) + "-" + std::to_string(random()));
             if (std::filesystem::create_directory(path_)) return;
         }
@@ -48,9 +53,10 @@ void PpmWriter::write(const Image& image, const std::filesystem::path& path) con
         std::ofstream out;
         out.exceptions(std::ios::failbit | std::ios::badbit);
         out.open(staging.file(), std::ios::binary | std::ios::trunc);
-        out << "P6\n" << image.width() << ' ' << image.height() << "\n255\n";
+        out << kPpmBinaryMagic << '\n' << image.width() << ' ' << image.height() << '\n'
+            << kMaxColorChannel << '\n';
         // Fixed-size buffer bounds memory usage independently of canvas width.
-        std::array<unsigned char, 12288> buffer;
+        std::array<unsigned char, kPpmOutputBufferSize> buffer;
         std::size_t used = 0;
         for (std::size_t y = 0; y < image.height(); ++y) {
             for (std::size_t x = 0; x < image.width(); ++x) {

@@ -1,8 +1,14 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 
 namespace compositor {
+
+inline constexpr std::size_t kRgbChannelCount = 3;
+inline constexpr int kMinColorChannel = 0;
+inline constexpr int kMaxColorChannel = std::numeric_limits<std::uint8_t>::max();
 
 class Color {
 public:

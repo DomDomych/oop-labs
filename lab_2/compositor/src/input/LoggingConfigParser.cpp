@@ -9,6 +9,11 @@
 
 namespace compositor::detail {
 namespace {
+constexpr std::int64_t kMinimumConfiguredCapacity = 2;
+constexpr std::int64_t kMaximumConfiguredCapacity = 1'000'000;
+constexpr std::int64_t kMinimumLokiTimeoutMilliseconds = 1;
+constexpr std::int64_t kMaximumLokiTimeoutMilliseconds = 60'000;
+
 [[noreturn]] void fail(const std::string& field) { throw std::runtime_error("logging." + field + ": invalid value"); }
 void keys(const boost::json::value& value, std::initializer_list<std::string_view> allowed, const std::string& field) {
     if (!value.is_object()) fail(field);
@@ -41,7 +46,8 @@ logging::LoggingConfig parseLoggingConfig(const boost::json::value& value,
     if (const auto* file = object.if_contains("file"))
         config.file = (directory / text(*file, "file")).lexically_normal();
     if (const auto* capacity = object.if_contains("capacity"))
-        config.capacity = static_cast<std::size_t>(number(*capacity, "capacity", 2, 1000000));
+        config.capacity = static_cast<std::size_t>(number(*capacity, "capacity", kMinimumConfiguredCapacity,
+                                                          kMaximumConfiguredCapacity));
     if (const auto* loki = object.if_contains("loki")) {
         keys(*loki, {"url", "labels", "timeout_ms"}, "loki");
         const auto& settings = loki->as_object();
@@ -51,7 +57,8 @@ logging::LoggingConfig parseLoggingConfig(const boost::json::value& value,
         options.url = text(*url, "loki.url");
         if (!options.url.starts_with("http://") && !options.url.starts_with("https://")) fail("loki.url");
         if (const auto* timeout = settings.if_contains("timeout_ms"))
-            options.timeout = std::chrono::milliseconds{number(*timeout, "loki.timeout_ms", 1, 60000)};
+            options.timeout = std::chrono::milliseconds{number(*timeout, "loki.timeout_ms",
+                kMinimumLokiTimeoutMilliseconds, kMaximumLokiTimeoutMilliseconds)};
         if (const auto* labels = settings.if_contains("labels")) {
             if (!labels->is_object() || labels->as_object().empty()) fail("loki.labels");
             options.labels.clear();

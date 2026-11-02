@@ -6,9 +6,12 @@
 
 namespace compositor::benchmark {
 
+inline constexpr std::size_t kDefaultBenchmarkRepetitions = 10;
+inline constexpr std::size_t kDefaultBenchmarkWarmupRuns = 2;
+
 struct BenchmarkOptions {
-    std::size_t warmup = 2;
-    std::size_t repetitions = 10;
+    std::size_t warmup = kDefaultBenchmarkWarmupRuns;
+    std::size_t repetitions = kDefaultBenchmarkRepetitions;
 };
 
 struct Sample {

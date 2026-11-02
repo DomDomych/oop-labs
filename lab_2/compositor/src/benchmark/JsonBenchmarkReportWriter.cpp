@@ -9,6 +9,10 @@
 
 namespace compositor::benchmark {
 namespace {
+constexpr unsigned kTemporaryDirectoryReservationAttempts = 64;
+constexpr int kBenchmarkReportSchemaVersion = 1;
+constexpr std::size_t kSequentialWorkerCount = 1;
+
 namespace json = boost::json;
 json::object statistics(const std::vector<Sample>& samples) {
     const auto stats = summarize(samples);
@@ -48,7 +52,7 @@ class TemporaryReport {
 public:
     explicit TemporaryReport(const std::filesystem::path& parent) {
         std::random_device random;
-        for (unsigned i=0; i<64; ++i) {
+        for (unsigned i=0; i<kTemporaryDirectoryReservationAttempts; ++i) {
             directory_ = parent / (".benchmark-" + std::to_string(random()) + "-" + std::to_string(random()));
             if (std::filesystem::create_directory(directory_)) return;
         }
@@ -75,7 +79,7 @@ void JsonBenchmarkReportWriter::write(const BenchmarkPlan& plan, const Benchmark
     for (const auto& r : plan.run.scene.rectangles()) rectangles.push_back(json::object{
         {"x",r.x()},{"y",r.y()},{"width",r.width()},{"height",r.height()},{"color",rgb(r.color())},{"priority",r.priority()}});
     json::object document{
-        {"schema_version",1},
+        {"schema_version",kBenchmarkReportSchemaVersion},
         {"recorded_at_unix_ns",std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count())},
         {"measurement","Compositor::render only; preparation, validation and I/O excluded"},
         {"input",plan.inputPath.string()},
@@ -86,7 +90,7 @@ void JsonBenchmarkReportWriter::write(const BenchmarkPlan& plan, const Benchmark
         {"canvas",json::object{{"width",plan.run.canvas.width},{"height",plan.run.canvas.height},{"background",rgb(plan.run.canvas.background)}}},
         {"rectangles",std::move(rectangles)},
         {"render",json::object{{"mode",mode(plan.run.render.mode)},{"requested_threads",plan.run.render.threads},
-            {"effective_workers",plan.run.render.mode == RenderMode::Sequential ? 1 : plan.run.render.threads},
+            {"effective_workers",plan.run.render.mode == RenderMode::Sequential ? kSequentialWorkerCount : plan.run.render.threads},
             {"region_width",plan.run.render.regionWidth},{"region_height",plan.run.render.regionHeight}}},
         {"baseline_render",json::object{{"mode","sequential"},{"region_width",plan.run.canvas.width},{"region_height",plan.run.canvas.height}}},
         {"warmup",plan.options.warmup},{"repetitions",plan.options.repetitions},

@@ -7,6 +7,9 @@
 
 namespace compositor::logging {
 namespace {
+constexpr long kLokiPushSuccessStatus = 204;
+constexpr long kLokiIngestionBlockedStatus = 260;
+
 bool letter(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; }
 bool labelName(const std::string& key) {
     return !key.empty() && letter(key.front()) && std::all_of(key.begin(), key.end(), [](char c) {
@@ -45,9 +48,11 @@ void LokiLogSink::write(std::span<const LogRecord> records) {
     const auto body = boost::json::serialize(boost::json::object{{"streams", boost::json::array{
         boost::json::object{{"stream", std::move(labels)}, {"values", std::move(values)}}}}});
     const auto status = transport_->postJson(url_, body, timeout_);
-    // Loki's successful push response is 204. In particular, configured ingestion
-    // blocking may return status 260, which must not be mistaken for success.
-    if (status != 204) throw std::runtime_error("Loki push failed: HTTP " + std::to_string(status));
+    // Configured ingestion blocking has a distinct diagnostic, and is never success.
+    if (status == kLokiIngestionBlockedStatus)
+        throw std::runtime_error("Loki ingestion is blocked: HTTP " + std::to_string(status));
+    if (status != kLokiPushSuccessStatus)
+        throw std::runtime_error("Loki push failed: HTTP " + std::to_string(status));
 }
 
 } // namespace compositor::logging

@@ -2,6 +2,7 @@
 
 #include "logging/ILogger.hpp"
 #include "logging/ILogSink.hpp"
+#include "logging/LoggingDefaults.hpp"
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -13,7 +14,7 @@ public:
     // Owns sinks exclusively. Bounded by record count; overflow drops new records
     // and is reported by flush. Sink I/O happens only in flush, never in log.
     BufferedLogger(std::vector<std::unique_ptr<ILogSink>> sinks,
-                   std::size_t capacity = 1024, Level minimum = Level::Info);
+                   std::size_t capacity = defaults::kBufferCapacity, Level minimum = Level::Info);
     void log(LogRecord record) noexcept override;
     FlushReport flush() override;
 

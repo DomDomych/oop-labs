@@ -19,6 +19,10 @@
 namespace compositor {
 namespace {
 namespace json = boost::json;
+constexpr std::int64_t kMinimumPositiveInteger = 1;
+constexpr std::size_t kRedChannelIndex = 0;
+constexpr std::size_t kGreenChannelIndex = 1;
+constexpr std::size_t kBlueChannelIndex = 2;
 
 [[noreturn]] void fail(const std::string& field, const std::string& reason) {
     throw std::runtime_error(field + ": " + reason);
@@ -55,7 +59,7 @@ std::int64_t integer(const json::value& value, const std::string& field,
 std::size_t positive(const json::value& value, const std::string& field) {
     constexpr auto max = std::min<std::uintmax_t>(std::numeric_limits<std::size_t>::max(),
                                                  std::numeric_limits<std::int64_t>::max());
-    return static_cast<std::size_t>(integer(value, field, 1, static_cast<std::int64_t>(max)));
+    return static_cast<std::size_t>(integer(value, field, kMinimumPositiveInteger, static_cast<std::int64_t>(max)));
 }
 
 int component(const json::value& value, const std::string& field, int low = std::numeric_limits<int>::min(),
@@ -64,11 +68,15 @@ int component(const json::value& value, const std::string& field, int low = std:
 }
 
 Color color(const json::value& value, const std::string& field) {
-    if (!value.is_array() || value.as_array().size() != 3) fail(field, "expected three RGB integers");
+    if (!value.is_array() || value.as_array().size() != kRgbChannelCount)
+        fail(field, "expected one integer per RGB channel");
     const auto& rgb = value.as_array();
-    return Color{component(rgb[0], field + "[0]", 0, 255),
-                 component(rgb[1], field + "[1]", 0, 255),
-                 component(rgb[2], field + "[2]", 0, 255)};
+    return Color{component(rgb[kRedChannelIndex], field + "[" + std::to_string(kRedChannelIndex) + "]",
+                           kMinColorChannel, kMaxColorChannel),
+                 component(rgb[kGreenChannelIndex], field + "[" + std::to_string(kGreenChannelIndex) + "]",
+                           kMinColorChannel, kMaxColorChannel),
+                 component(rgb[kBlueChannelIndex], field + "[" + std::to_string(kBlueChannelIndex) + "]",
+                           kMinColorChannel, kMaxColorChannel)};
 }
 
 std::string string(const json::value& value, const std::string& field) {

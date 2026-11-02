@@ -5,8 +5,19 @@
 #include <exception>
 #include <iostream>
 
+namespace {
+constexpr int kExitSuccess = 0;
+constexpr int kExitFailure = 1;
+constexpr int kExitUsageError = 2;
+constexpr int kExitReferenceMismatch = 3;
+constexpr int kExpectedArgumentCount = 2;
+}
+
 int main(int argc, char** argv) {
-    if (argc != 2) { std::cerr << "Usage: compositor_bench <benchmark.json>\n"; return 2; }
+    if (argc != kExpectedArgumentCount) {
+        std::cerr << "Usage: compositor_bench <benchmark.json>\n";
+        return kExitUsageError;
+    }
     try {
         using namespace compositor;
         using namespace compositor::benchmark;
@@ -19,6 +30,6 @@ int main(int argc, char** argv) {
         const auto result = BenchmarkRunner{}.run(plan.run.scene,initial,compositor,plan.options);
         JsonBenchmarkReportWriter{}.write(plan,result);
         std::cout << "Report: " << plan.reportPath << '\n';
-        return matchesReference(result) ? 0 : 3;
-    } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
+        return matchesReference(result) ? kExitSuccess : kExitReferenceMismatch;
+    } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return kExitFailure; }
 }

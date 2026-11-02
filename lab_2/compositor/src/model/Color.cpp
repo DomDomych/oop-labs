@@ -1,6 +1,7 @@
 #include "model/Color.hpp"
 
 #include <stdexcept>
+#include <string>
 
 namespace compositor {
 
@@ -15,8 +16,9 @@ std::uint8_t Color::green() const noexcept { return green_; }
 std::uint8_t Color::blue() const noexcept { return blue_; }
 
 std::uint8_t Color::checkedChannel(int value) {
-    if (value < 0 || value > 255) {
-        throw std::invalid_argument("RGB channel must be in [0, 255]");
+    if (value < kMinColorChannel || value > kMaxColorChannel) {
+        throw std::invalid_argument("RGB channel must be in [" + std::to_string(kMinColorChannel) + ", " +
+                                    std::to_string(kMaxColorChannel) + "]");
     }
     return static_cast<std::uint8_t>(value);
 }

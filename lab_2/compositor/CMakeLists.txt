@@ -83,6 +83,22 @@ add_executable(compositor src/main.cpp)
 target_link_libraries(compositor PRIVATE compositor_application compositor_input compositor_output)
 set_target_properties(compositor PROPERTIES CXX_EXTENSIONS OFF)
 
+# Named launch targets keep the executable's configuration argument explicit in
+# CMake-based IDEs and work with both single- and multi-configuration generators.
+function(add_compositor_run_target target config_path)
+    add_custom_target(${target}
+        COMMAND $<TARGET_FILE:compositor> "${CMAKE_CURRENT_SOURCE_DIR}/${config_path}"
+        DEPENDS compositor
+        USES_TERMINAL
+        COMMENT "Running compositor with ${config_path}"
+        VERBATIM
+    )
+endfunction()
+
+add_compositor_run_target(run_compositor_demo configs/example.json)
+add_compositor_run_target(run_reference_sequential demo/reference/sequential.json)
+add_compositor_run_target(run_reference_parallel_safe demo/reference/parallel-safe.json)
+
 # Configure-time provenance: reconfigure after changing the checkout for a new report.
 find_package(Git QUIET)
 set(BENCH_REVISION "unknown")

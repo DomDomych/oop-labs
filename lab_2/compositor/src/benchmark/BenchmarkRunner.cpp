@@ -7,6 +7,10 @@
 #include <stdexcept>
 
 namespace compositor::benchmark {
+namespace {
+constexpr std::size_t kIterationOrderAlternationPeriod = 2;
+}
+
 
 BenchmarkResult BenchmarkRunner::run(const Scene& scene, const Image& initial,
                                      const Compositor& candidate, const BenchmarkOptions& options) const {
@@ -41,7 +45,7 @@ BenchmarkResult BenchmarkRunner::run(const Scene& scene, const Image& initial,
     };
     for (std::size_t i = 0; i < options.repetitions; ++i) {
         // Alternate order to reduce a fixed first/second bias.
-        if (i % 2 == 0) {
+        if (i % kIterationOrderAlternationPeriod == 0) {
             result.baseline.push_back(measure(baseline));
             result.candidate.push_back(measure(candidate));
         } else {

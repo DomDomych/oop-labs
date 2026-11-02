@@ -1,6 +1,7 @@
 /build/
 **/build/
 **/cmake-build-*/
+lab_2/compositor/configs/result.ppm
 .idea/
 .vscode/
 .DS_Store

@@ -11,6 +11,13 @@
 
 namespace compositor::benchmark {
 namespace {
+constexpr std::uint64_t kMinimumWarmupRuns = 0;
+constexpr std::uint64_t kMaximumWarmupRuns = 100'000;
+constexpr std::uint64_t kMinimumMeasuredRuns = 1;
+constexpr std::uint64_t kMaximumMeasuredRuns = 100'000;
+constexpr std::uint64_t kMinimumGeneratedRectangles = 0;
+constexpr std::uint64_t kMaximumGeneratedRectangles = 10'000'000;
+
 void schema(const boost::json::value& value, std::initializer_list<std::string_view> required,
             std::initializer_list<std::string_view> optional = {}) {
     if (!value.is_object()) throw std::runtime_error("Expected benchmark object");
@@ -55,8 +62,8 @@ BenchmarkPlan BenchmarkPlanLoader::load(const std::filesystem::path& path) const
         const auto reportPath = (absolute.parent_path() / text(root.at("report"),"report")).lexically_normal();
         if (reportPath.filename().empty() || sameFile(reportPath,inputPath) || sameFile(reportPath,absolute))
             throw std::runtime_error("Report must name a file different from input configurations");
-        BenchmarkOptions options{integer(root.at("warmup"),"warmup",0,100000),
-                                 integer(root.at("repetitions"),"repetitions",1,100000)};
+        BenchmarkOptions options{integer(root.at("warmup"),"warmup",kMinimumWarmupRuns,kMaximumWarmupRuns),
+                                 integer(root.at("repetitions"),"repetitions",kMinimumMeasuredRuns,kMaximumMeasuredRuns)};
         auto run = JsonConfigLoader{}.load(inputPath);
         std::optional<GeneratorConfig> generator;
         if (const auto* generated = root.if_contains("generate")) {
@@ -69,7 +76,8 @@ BenchmarkPlan BenchmarkPlanLoader::load(const std::filesystem::path& path) const
             else if (name == "large") scenario = Scenario::Large;
             else if (name == "mixed") scenario = Scenario::Mixed;
             else throw std::runtime_error("Unknown generated scenario: " + name);
-            generator = GeneratorConfig{scenario, integer(settings.at("rectangles"),"generate.rectangles",0,10000000),
+            generator = GeneratorConfig{scenario, integer(settings.at("rectangles"),"generate.rectangles",
+                kMinimumGeneratedRectangles,kMaximumGeneratedRectangles),
                 static_cast<std::uint32_t>(integer(settings.at("seed"),"generate.seed",0,std::numeric_limits<std::uint32_t>::max()))};
             run.scene = SceneGenerator{}.generate(run.canvas.width,run.canvas.height,*generator);
         }
