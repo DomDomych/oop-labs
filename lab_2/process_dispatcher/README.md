@@ -13,7 +13,7 @@
 - `demo-sync.cmd` — тот же список программ последовательно.
 - `run.cmd` — пример без паузы; также принимает путь к своему JSON и `--mode`.
 - `output/report.json` — отчёт; `output/run.jsonl` — журнал примера.
-- `tests.cmd` — модульные, интеграционные и эталонные проверки; нужен Python 3.10+ в PATH.
+- `tests.cmd` — модульные, интеграционные и эталонные проверки; нужен Python 3.11+ в PATH.
 
 Из PowerShell в распакованной папке:
 
@@ -35,7 +35,7 @@ Get-FileHash ..\process-dispatcher-windows-x64.zip -Algorithm SHA256
 ### Сборка Windows из исходников
 
 Нужны Visual Studio 2022 с компонентом «Разработка классических приложений на C++»,
-Windows SDK, CMake 3.20–3.31, Git и Python 3.10+ для тестов. Из корня монорепозитория:
+Windows SDK, PowerShell 7, CMake 3.20–3.31, Git и Python 3.11+ для тестов. Из корня монорепозитория:
 
 ```powershell
 git clone https://github.com/microsoft/vcpkg.git build/vcpkg
@@ -59,7 +59,7 @@ ctest --test-dir build/dispatcher -C Release --output-on-failure
 
 ## Сборка и запуск Linux
 
-Поддерживаются Linux и Windows. Для сборки Linux Нужны CMake 3.20+, компилятор C++20, Boost 1.83 или 1.88 (JSON, Filesystem, System, Process), libcurl с заголовками. Для тестов нужен Python 3, дополнительных Python-пакетов нет. В Debian/Ubuntu зависимости: `build-essential cmake libboost-json-dev libboost-filesystem-dev libboost-system-dev libcurl4-openssl-dev python3`; для Linux проверена версия Boost 1.83; Windows-релиз использует 1.88.
+Поддерживаются Linux и Windows. Для сборки Linux Нужны CMake 3.20+, компилятор C++20, Boost 1.83 или 1.88 (JSON, Filesystem, System, Process), libcurl с заголовками. Для тестов нужен Python 3.11+, дополнительных Python-пакетов нет. В Debian/Ubuntu зависимости: `build-essential cmake libboost-json-dev libboost-filesystem-dev libboost-system-dev libcurl4-openssl-dev python3`; для Linux проверена версия Boost 1.83; Windows-релиз использует 1.88.
 
 Из корня репозитория:
 

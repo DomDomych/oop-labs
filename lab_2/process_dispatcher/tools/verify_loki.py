@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import socket
 import subprocess
+import sys
 import tempfile
 import time
 import urllib.error
@@ -118,4 +119,5 @@ analytics:
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
     main()
