@@ -51,7 +51,7 @@ ctest --test-dir build/dispatcher -C Release --output-on-failure
 .\lab_2\process_dispatcher\windows\package.ps1 -BuildDirectory "$PWD/build/dispatcher" -OutputDirectory "$PWD/build/dist"
 ```
 
-Версии зависимостей закреплены в `vcpkg.json`: Boost 1.83 (API Process v2), curl
+Версии зависимостей закреплены в `vcpkg.json`: Boost 1.88 (API Process v2), curl
 8.14.1. TLS в Windows использует системный Schannel. Скрипт упаковки включает
 лицензии зависимостей и проверяет уже распакованный архив в папке с кириллицей
 и пробелами. GitHub Actions выполняет эти же шаги на Windows Server 2022;
@@ -59,7 +59,7 @@ ctest --test-dir build/dispatcher -C Release --output-on-failure
 
 ## Сборка и запуск Linux
 
-Поддерживаются Linux и Windows. Для сборки Linux Нужны CMake 3.20+, компилятор C++20, Boost 1.83 (JSON, Filesystem, System), libcurl с заголовками. Для тестов нужен Python 3, дополнительных Python-пакетов нет. В Debian/Ubuntu зависимости: `build-essential cmake libboost-json-dev libboost-filesystem-dev libboost-system-dev libcurl4-openssl-dev python3`; проверенная версия Boost — 1.83.
+Поддерживаются Linux и Windows. Для сборки Linux Нужны CMake 3.20+, компилятор C++20, Boost 1.83 или 1.88 (JSON, Filesystem, System, Process), libcurl с заголовками. Для тестов нужен Python 3, дополнительных Python-пакетов нет. В Debian/Ubuntu зависимости: `build-essential cmake libboost-json-dev libboost-filesystem-dev libboost-system-dev libcurl4-openssl-dev python3`; для Linux проверена версия Boost 1.83; Windows-релиз использует 1.88.
 
 Из корня репозитория:
 

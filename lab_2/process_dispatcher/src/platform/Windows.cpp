@@ -1,6 +1,8 @@
 #include "platform/Platform.hpp"
 #include <Windows.h>
 #include <algorithm>
+#include <cerrno>
+#include <climits>
 #include <cstdio>
 #include <fcntl.h>
 #include <io.h>

@@ -1,4 +1,5 @@
 #include "dispatcher/logging/FileLogSink.hpp"
+#include "platform/Platform.hpp"
 #include <stdexcept>
 
 namespace dispatcher::logging {
@@ -6,7 +7,7 @@ namespace dispatcher::logging {
 FileLogSink::FileLogSink(const std::filesystem::path &path, std::shared_ptr<const ILogFormatter> formatter)
     : file_(path, std::ios::binary | std::ios::app), streamSink_(file_, std::move(formatter)) {
     if (!file_)
-        throw std::runtime_error("Cannot open log file: " + path.string());
+        throw std::runtime_error("Cannot open log file: " + platform::toUtf8(path));
 }
 void FileLogSink::write(std::span<const LogRecord> records) {
     streamSink_.write(records);

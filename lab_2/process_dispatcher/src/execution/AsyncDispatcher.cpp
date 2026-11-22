@@ -1,5 +1,6 @@
 #include "dispatcher/execution/Dispatchers.hpp"
 #include "execution/RunSession.hpp"
+#include "platform/PipeErrors.hpp"
 #include "process/ProcessSession.hpp"
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
@@ -40,7 +41,7 @@ awaitable<std::string> drain(asio::readable_pipe &pipe, IOutputCapture &capture,
         if (ec) {
             boost::system::error_code ignored;
             pipe.close(ignored);
-            co_return ec == asio::error::eof ? std::string{} : ec.message();
+            co_return pipeEnded(ec) ? std::string{} : ec.message();
         }
     }
 }

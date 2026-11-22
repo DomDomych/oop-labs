@@ -36,7 +36,8 @@ jobs:
       - name: Prepare binary cache
         shell: pwsh
         run: New-Item -ItemType Directory -Force "$env:LOCALAPPDATA/vcpkg/archives" | Out-Null
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: deps-cache
         with:
           path: ~/AppData/Local/vcpkg/archives
           key: dispatcher-windows-2022-v1-${{ hashFiles('lab_2/process_dispatcher/vcpkg.json', 'lab_2/process_dispatcher/windows/*cmake') }}
@@ -48,6 +49,12 @@ jobs:
           -DVCPKG_TARGET_TRIPLET=x64-windows-static-release
           -DVCPKG_OVERLAY_TRIPLETS="${{ github.workspace }}/lab_2/process_dispatcher/windows"
           -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DBUILD_TESTING=ON
+      - name: Save dependency cache
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/AppData/Local/vcpkg/archives
+          key: ${{ steps.deps-cache.outputs.cache-primary-key }}
       - name: Build
         run: cmake --build build/dispatcher --config Release --parallel 2
       - name: Test

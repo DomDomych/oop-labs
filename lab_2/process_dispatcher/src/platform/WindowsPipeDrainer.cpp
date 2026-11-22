@@ -1,4 +1,5 @@
 #include "platform/PipeDrainer.hpp"
+#include "platform/PipeErrors.hpp"
 #include <exception>
 #include <thread>
 namespace dispatcher {
@@ -18,7 +19,7 @@ void drainBlocking(ProcessSession &process, OutputPair &outputs, std::size_t blo
                 if (count)
                     captures[index]->append({buffers[index].data(), count});
                 if (ec) {
-                    if (ec != boost::asio::error::eof)
+                    if (!pipeEnded(ec))
                         errors[index] = ec.message();
                     break;
                 }

@@ -1,4 +1,5 @@
 #include "platform/PipeDrainer.hpp"
+#include "platform/PipeErrors.hpp"
 #include <cerrno>
 #include <poll.h>
 #include <system_error>
@@ -27,7 +28,7 @@ void drainBlocking(ProcessSession &process, OutputPair &outputs, std::size_t blo
             if (bytes)
                 captures[i]->append({buffer.data(), bytes});
             if (ec) {
-                if (ec != boost::asio::error::eof)
+                if (!pipeEnded(ec))
                     errors[i] = ec.message();
                 pipes[i]->close();
                 fds[i].fd = -1;
