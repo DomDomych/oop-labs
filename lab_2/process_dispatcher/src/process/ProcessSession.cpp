@@ -8,9 +8,11 @@ boost::process::v2::process launch(boost::asio::io_context &context, const Job &
     const boost::process::v2::filesystem::path path(job.executable().native());
 #ifdef _WIN32
     const auto command = platform::commandLine(job.executable(), job.arguments());
-    return {context, path, command.c_str(), boost::process::v2::process_stdio{nullptr, output, error}};
+    return boost::process::v2::process{context, path, command.c_str(),
+                                       boost::process::v2::process_stdio{nullptr, output, error}};
 #else
-    return {context, path, job.arguments(), boost::process::v2::process_stdio{nullptr, output, error}};
+    return boost::process::v2::process{context, path, job.arguments(),
+                                       boost::process::v2::process_stdio{nullptr, output, error}};
 #endif
 }
 } // namespace
