@@ -1,0 +1,74 @@
+{
+  "oracle": "Python subprocess.run, serial; independent of Boost and C++ dispatchers",
+  "expected": [
+    {
+      "id": "slow",
+      "status": "succeeded",
+      "exit_code": 0,
+      "stdout_bytes": 2,
+      "stdout_sha256": "06f961b802bc46ee168555f066d28f4f0e9afdf3f88174c1ee6f9de004fc30a0",
+      "stderr_bytes": 4,
+      "stderr_sha256": "2ccde4875ec595757efdf23d7b1336fcd69cf0fb869310b12a0d219c52817b20"
+    },
+    {
+      "id": "fast",
+      "status": "nonzero_exit",
+      "exit_code": 7,
+      "stdout_bytes": 22,
+      "stdout_sha256": "42ff78ae045db984f440a0d3da959681e40f355ebc87e720846e96636c26d3c8",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "empty",
+      "status": "succeeded",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "missing",
+      "status": "launch_failed",
+      "exit_code": null,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "binary",
+      "status": "succeeded",
+      "exit_code": 0,
+      "stdout_bytes": 1048583,
+      "stdout_sha256": "d4efb848a0802763b512507ae58a4f52423febe5032ae0e4f8fbdbef361c3a32",
+      "stderr_bytes": 1048583,
+      "stderr_sha256": "1896f205a246f830dab52e87fbb727f967385c8671c44ba58b412766f5306fde"
+    }
+  ],
+  "modes": {
+    "sync": {
+      "matches": true,
+      "peak_concurrency": 1,
+      "completion_order": [
+        "slow",
+        "fast",
+        "empty",
+        "missing",
+        "binary"
+      ]
+    },
+    "async": {
+      "matches": true,
+      "peak_concurrency": 2,
+      "completion_order": [
+        "fast",
+        "empty",
+        "missing",
+        "binary",
+        "slow"
+      ]
+    }
+  }
+}

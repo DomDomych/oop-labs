@@ -6,3 +6,7 @@ lab_2/compositor/configs/result.ppm
 .vscode/
 .DS_Store
 *.swp
+
+# Runtime captures, reports and logs from dispatcher examples
+lab_2/process_dispatcher/output/
+**/__pycache__/

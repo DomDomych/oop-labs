@@ -1,0 +1,94 @@
+name: Dispatcher Windows release
+on:
+  push:
+    branches: [dev, main]
+    tags: ['dispatcher-v*']
+    paths:
+      - 'lab_2/process_dispatcher/**'
+      - '.github/workflows/dispatcher.yml'
+  pull_request:
+    paths:
+      - 'lab_2/process_dispatcher/**'
+      - '.github/workflows/dispatcher.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin CMake
+        run: python -m pip install cmake==3.31.6
+      - name: Checkout pinned vcpkg tool
+        uses: actions/checkout@v4
+        with:
+          repository: microsoft/vcpkg
+          ref: ef7dbf94b9198bc58f45951adcf1f041fcbc5ea0
+          path: .deps/vcpkg
+          fetch-depth: 0
+      - name: Bootstrap vcpkg
+        run: ./.deps/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+      - name: Prepare binary cache
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force "$env:LOCALAPPDATA/vcpkg/archives" | Out-Null
+      - uses: actions/cache@v4
+        with:
+          path: ~/AppData/Local/vcpkg/archives
+          key: dispatcher-windows-2022-v1-${{ hashFiles('lab_2/process_dispatcher/vcpkg.json', 'lab_2/process_dispatcher/windows/*cmake') }}
+      - name: Configure
+        shell: pwsh
+        run: >-
+          cmake -S lab_2/process_dispatcher -B build/dispatcher -A x64
+          -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/.deps/vcpkg/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static-release
+          -DVCPKG_OVERLAY_TRIPLETS="${{ github.workspace }}/lab_2/process_dispatcher/windows"
+          -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DBUILD_TESTING=ON
+      - name: Build
+        run: cmake --build build/dispatcher --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build/dispatcher -C Release --output-on-failure --no-tests=error
+      - name: Package and verify extracted archive
+        shell: pwsh
+        run: ./lab_2/process_dispatcher/windows/package.ps1 -BuildDirectory "$PWD/build/dispatcher" -OutputDirectory "$PWD/dist"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-dispatcher-windows-x64
+          path: |
+            dist/process-dispatcher-windows-x64.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dispatcher-build-diagnostics
+          path: |
+            build/dispatcher/Testing/Temporary/*.log
+            build/dispatcher/vcpkg-manifest-install.log
+            .deps/vcpkg/buildtrees/**/*.log
+  release:
+    if: startsWith(github.ref, 'refs/tags/dispatcher-v')
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: process-dispatcher-windows-x64
+          path: dist
+      - name: Publish tested Windows binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: >-
+          gh release create "$RELEASE_TAG"
+          dist/process-dispatcher-windows-x64.zip dist/SHA256SUMS.txt
+          --verify-tag --title "Process Dispatcher $RELEASE_TAG — Windows x64"
+          --notes "Лабораторная 2, задание 2, вариант 4. Готовая сборка для Windows 10/11 x64: sync/async, JSON-отчёты, stdout/stderr, логи JSONL и Loki. Распакуйте ZIP и запустите demo-async.cmd или demo-sync.cmd. README и тесты внутри. Проверены CTest и повторный запуск тестов из распакованного архива в каталоге с кириллицей и пробелами. SHA-256 приложен отдельным файлом."

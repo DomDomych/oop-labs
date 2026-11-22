@@ -1,0 +1,50 @@
+{
+  "mode": "async",
+  "max_processes": 2,
+  "block_size": 65536,
+  "report": "../output/loki-report.json",
+  "logging": {
+    "console": true,
+    "file": "../output/loki-run.jsonl",
+    "loki": {
+      "url": "http://127.0.0.1:3100/loki/api/v1/push",
+      "labels": {
+        "app": "process_dispatcher"
+      },
+      "timeout_ms": 2000
+    }
+  },
+  "jobs": [
+    {
+      "id": "slow",
+      "executable": "@self",
+      "arguments": [
+        "--fixture",
+        "--delay-ms",
+        "600",
+        "--stdout",
+        "slow output\n",
+        "--stderr",
+        "slow diagnostic\n"
+      ]
+    },
+    {
+      "id": "fast",
+      "executable": "@self",
+      "arguments": [
+        "--fixture",
+        "--delay-ms",
+        "20",
+        "--stdout",
+        "fast output\n"
+      ]
+    },
+    {
+      "id": "empty",
+      "executable": "@self",
+      "arguments": [
+        "--fixture"
+      ]
+    }
+  ]
+}

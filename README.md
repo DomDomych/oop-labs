@@ -9,6 +9,7 @@
 | 1 | Решатель уравнений, вариант 2 | [equation_solver](lab_1/equation_solver/) |
 | 1 | Генерация и прохождение лабиринта, вариант 2 | [maze](lab_1/maze/) |
 | 2 | Компоновщик графических объектов, вариант 4 | [compositor](lab_2/compositor/) |
+| 2 | Диспетчер программ, задание 2, вариант 4 | [process_dispatcher](lab_2/process_dispatcher/) |
 
 Новые работы размещаются по лабораторным в `lab_3/`, `lab_4/` и так далее.
 
@@ -53,7 +54,7 @@ ctest --test-dir build/compositor --output-on-failure
 и запускайте `.exe` из соответствующей папки конфигурации.
 
 Инструкции по вводу и запуску первой лабораторной находятся в README каждого
-задания. Корневой CI монорепозитория пока не настроен.
+задания. Корневой CI проверяет первую лабораторную; отдельный workflow собирает, тестирует и упаковывает диспетчер для Windows.
 
 ## Перенос первой лабораторной
 
@@ -62,3 +63,10 @@ ctest --test-dir build/compositor --output-on-failure
 Вложенные `.github/workflows/windows-release.yml` сохранены как исходные
 настройки отдельных проектов; они не запускаются автоматически в монорепозитории.
 Ссылки на Windows-релизы в README заданий ведут к прежним репозиториям.
+
+## Диспетчер программ — Windows
+
+[Готовый релиз Windows x64](https://github.com/DomDomych/oop-labs/releases/tag/dispatcher-v1.0.0)
+— распакуйте архив и запустите `demo-async.cmd` или `demo-sync.cmd`.
+Исходники, сборка, настройки Loki и описание интерфейсов:
+[README задания 2](lab_2/process_dispatcher/README.md).

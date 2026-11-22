@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-11-22T16:09:24Z",
+  "platform": "Linux-6.12.117+deb13-amd64-x86_64-with-glibc2.41",
+  "logical_cpus": 4,
+  "program": "/home/domik/Dom_Dom/oop/oop-labs/build/process_dispatcher/process_dispatcher",
+  "jobs_per_run": 8,
+  "warmup_runs_per_case": 1,
+  "repetitions": 3,
+  "cases": [
+    {
+      "scenario": "waiting",
+      "mode": "sync",
+      "limit": 1,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 1074830872,
+          "total_ns": 1090892101,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 1088775496,
+          "total_ns": 1108102811,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 1067797595,
+          "total_ns": 1085188065,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 1074830872,
+      "median_total_ns": 1090892101,
+      "speedup": 1.0
+    },
+    {
+      "scenario": "waiting",
+      "mode": "async",
+      "limit": 1,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 1057713677,
+          "total_ns": 1073049557,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 1076944921,
+          "total_ns": 1092475703,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 1045179255,
+          "total_ns": 1057919159,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 1057713677,
+      "median_total_ns": 1073049557,
+      "speedup": 1.0161832028574591
+    },
+    {
+      "scenario": "waiting",
+      "mode": "async",
+      "limit": 2,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 518278673,
+          "total_ns": 530450979,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 551487119,
+          "total_ns": 561178937,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 549359449,
+          "total_ns": 556965550,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 549359449,
+      "median_total_ns": 556965550,
+      "speedup": 1.9565165830068394
+    },
+    {
+      "scenario": "waiting",
+      "mode": "async",
+      "limit": 4,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 267381305,
+          "total_ns": 276741251,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 284765429,
+          "total_ns": 301167471,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 265282868,
+          "total_ns": 279496518,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 267381305,
+      "median_total_ns": 279496518,
+      "speedup": 4.019843017820562
+    },
+    {
+      "scenario": "waiting",
+      "mode": "async",
+      "limit": 8,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 142209409,
+          "total_ns": 153207400,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 154848084,
+          "total_ns": 174225434,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 143806354,
+          "total_ns": 157150533,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 143806354,
+      "median_total_ns": 157150533,
+      "speedup": 7.4741542505138545
+    },
+    {
+      "scenario": "mixed",
+      "mode": "sync",
+      "limit": 1,
+      "delay_ms": 30,
+      "bytes_per_stream": 65536,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 341042686,
+          "total_ns": 357907289,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 354517636,
+          "total_ns": 369217479,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 337130871,
+          "total_ns": 349936292,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 341042686,
+      "median_total_ns": 357907289,
+      "speedup": 1.0
+    },
+    {
+      "scenario": "mixed",
+      "mode": "async",
+      "limit": 1,
+      "delay_ms": 30,
+      "bytes_per_stream": 65536,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 310574294,
+          "total_ns": 316596489,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 362552732,
+          "total_ns": 376052740,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 343780935,
+          "total_ns": 357931190,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 343780935,
+      "median_total_ns": 357931190,
+      "speedup": 0.9920349015282072
+    },
+    {
+      "scenario": "mixed",
+      "mode": "async",
+      "limit": 2,
+      "delay_ms": 30,
+      "bytes_per_stream": 65536,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 173945474,
+          "total_ns": 184170537,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 154656047,
+          "total_ns": 168444262,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 154608553,
+          "total_ns": 165982527,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 154656047,
+      "median_total_ns": 168444262,
+      "speedup": 2.2051687768794452
+    },
+    {
+      "scenario": "mixed",
+      "mode": "async",
+      "limit": 4,
+      "delay_ms": 30,
+      "bytes_per_stream": 65536,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 113002334,
+          "total_ns": 127564892,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 89579641,
+          "total_ns": 97728009,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 85737762,
+          "total_ns": 95273968,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 89579641,
+      "median_total_ns": 97728009,
+      "speedup": 3.807145040913928
+    },
+    {
+      "scenario": "mixed",
+      "mode": "async",
+      "limit": 8,
+      "delay_ms": 30,
+      "bytes_per_stream": 65536,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 64833752,
+          "total_ns": 75900642,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 56017932,
+          "total_ns": 65856418,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 57815652,
+          "total_ns": 72081058,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 57815652,
+      "median_total_ns": 72081058,
+      "speedup": 5.898795122123677
+    },
+    {
+      "scenario": "output",
+      "mode": "sync",
+      "limit": 1,
+      "delay_ms": 0,
+      "bytes_per_stream": 1048576,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 68423193,
+          "total_ns": 77009646,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 60494195,
+          "total_ns": 70716982,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 60147437,
+          "total_ns": 67053519,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 60494195,
+      "median_total_ns": 70716982,
+      "speedup": 1.0
+    },
+    {
+      "scenario": "output",
+      "mode": "async",
+      "limit": 1,
+      "delay_ms": 0,
+      "bytes_per_stream": 1048576,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 59696411,
+          "total_ns": 66878369,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 56928936,
+          "total_ns": 63316625,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 55925801,
+          "total_ns": 61963537,
+          "peak_concurrency": 1,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 56928936,
+      "median_total_ns": 63316625,
+      "speedup": 1.0626264822514864
+    },
+    {
+      "scenario": "output",
+      "mode": "async",
+      "limit": 2,
+      "delay_ms": 0,
+      "bytes_per_stream": 1048576,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 34519879,
+          "total_ns": 40998174,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 35072804,
+          "total_ns": 41580243,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 40904510,
+          "total_ns": 47197478,
+          "peak_concurrency": 2,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 35072804,
+      "median_total_ns": 41580243,
+      "speedup": 1.724817753379513
+    },
+    {
+      "scenario": "output",
+      "mode": "async",
+      "limit": 4,
+      "delay_ms": 0,
+      "bytes_per_stream": 1048576,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 33547067,
+          "total_ns": 41979900,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 34085921,
+          "total_ns": 42898553,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 31430915,
+          "total_ns": 37713845,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 33547067,
+      "median_total_ns": 41979900,
+      "speedup": 1.803263307638787
+    },
+    {
+      "scenario": "output",
+      "mode": "async",
+      "limit": 8,
+      "delay_ms": 0,
+      "bytes_per_stream": 1048576,
+      "logging": true,
+      "samples": [
+        {
+          "dispatch_ns": 24788850,
+          "total_ns": 31695428,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 23744987,
+          "total_ns": 30327353,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 25017597,
+          "total_ns": 31507860,
+          "peak_concurrency": 8,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 24788850,
+      "median_total_ns": 31507860,
+      "speedup": 2.4403792430871136
+    },
+    {
+      "scenario": "waiting",
+      "mode": "async",
+      "limit": 4,
+      "delay_ms": 120,
+      "bytes_per_stream": 0,
+      "logging": false,
+      "samples": [
+        {
+          "dispatch_ns": 275047926,
+          "total_ns": 282152352,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 275394339,
+          "total_ns": 282946198,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        },
+        {
+          "dispatch_ns": 277974838,
+          "total_ns": 285677785,
+          "peak_concurrency": 4,
+          "outputs_verified": true
+        }
+      ],
+      "median_ns": 275394339,
+      "median_total_ns": 282946198,
+      "speedup": 3.9028793253444474
+    }
+  ],
+  "output_filesystem": "tmpfs (/tmp), verified with findmnt; no fsync"
+}

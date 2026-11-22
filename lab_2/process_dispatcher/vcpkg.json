@@ -1,0 +1,10 @@
+{
+  "name": "process-dispatcher",
+  "version-string": "1.0.0",
+  "builtin-baseline": "c8696863d371ab7f46e213d8f5ca923c4aef2a00",
+  "dependencies": [
+    "boost-json", "boost-filesystem", "boost-system", "boost-process",
+    {"name": "curl", "default-features": false, "features": ["ssl"]}
+  ],
+  "overrides": [{"name": "curl", "version": "8.14.1"}]
+}

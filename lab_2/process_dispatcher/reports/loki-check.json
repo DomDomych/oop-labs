@@ -1,0 +1,102 @@
+{
+  "checked_at": "2026-11-22T16:16:03Z",
+  "loki": {
+    "version": "3.7.10",
+    "revision": "c792f585",
+    "branch": "release-3.7.x",
+    "buildUser": "root@d3ca4d55ebe5",
+    "buildDate": "2026-11-13T00:20:52Z",
+    "goVersion": ""
+  },
+  "verification": "5383b0fdd3cb4bbd8fb3aaee05b6468f",
+  "file_matches_loki": true,
+  "completion_order": [
+    "fast",
+    "slow"
+  ],
+  "events": [
+    {
+      "timestamp_ns": "1795364163678119345",
+      "level": "info",
+      "event": "program_started",
+      "fields": {}
+    },
+    {
+      "timestamp_ns": "1795364163678124714",
+      "level": "info",
+      "event": "dispatch_started",
+      "fields": {
+        "jobs": "2",
+        "mode": "async"
+      }
+    },
+    {
+      "timestamp_ns": "1795364163684751282",
+      "level": "info",
+      "event": "process_exited",
+      "fields": {
+        "exit_code": "0",
+        "job_id": "fast",
+        "sequence": "1"
+      }
+    },
+    {
+      "timestamp_ns": "1795364163684768697",
+      "level": "info",
+      "event": "job_finished",
+      "fields": {
+        "duration_ns": "5807799",
+        "error": "",
+        "job_id": "fast",
+        "status": "succeeded",
+        "stderr_bytes": "0",
+        "stderr_error": "",
+        "stdout_bytes": "2",
+        "stdout_error": ""
+      }
+    },
+    {
+      "timestamp_ns": "1795364163785515976",
+      "level": "info",
+      "event": "process_exited",
+      "fields": {
+        "exit_code": "0",
+        "job_id": "slow",
+        "sequence": "2"
+      }
+    },
+    {
+      "timestamp_ns": "1795364163785558719",
+      "level": "info",
+      "event": "job_finished",
+      "fields": {
+        "duration_ns": "107365685",
+        "error": "",
+        "job_id": "slow",
+        "status": "succeeded",
+        "stderr_bytes": "0",
+        "stderr_error": "",
+        "stdout_bytes": "0",
+        "stdout_error": ""
+      }
+    },
+    {
+      "timestamp_ns": "1795364163785725420",
+      "level": "info",
+      "event": "dispatch_finished",
+      "fields": {
+        "duration_ns": "107601491",
+        "success": "true"
+      }
+    },
+    {
+      "timestamp_ns": "1795364163786026243",
+      "level": "info",
+      "event": "program_finished",
+      "fields": {
+        "duration_ns": "107907168",
+        "exit_code": "0"
+      }
+    }
+  ]
+}
