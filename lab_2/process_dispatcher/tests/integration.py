@@ -76,11 +76,20 @@ class Integration(unittest.TestCase):
         for mode in ("sync", "async"):
             r, _, _ = self.run_config(jobs, mode, expected=3)
             self.assertEqual([x["status"] for x in r["results"]],
-                             ["launch_failed", "nonzero_exit", "launch_failed", "succeeded"])
+                             ["launch_failed", "nonzero_exit", "launch_failed", "succeeded"], r["results"])
             self.assertIsNone(r["results"][0]["exit_code"])
             self.assertEqual(r["results"][1]["exit_code"], 7)
             self.check_stream(r["results"][3], "stdout", literal.encode())
             self.assertEqual(len(r["completions"]), 4)
+
+    def test_argument_roundtrip(self):
+        values = ['', '"', '"quoted"', 'no"space', 'tabs\tand\nlines', 'C:\\folder with space\\', '\\"', 'Привет 🌍']
+        jobs = [job(f"arg{i}", "--stdout", value, "--stderr", "") for i, value in enumerate(values)]
+        for mode in ("sync", "async"):
+            report, _, _ = self.run_config(jobs, mode)
+            for result, value in zip(report["results"], values):
+                self.check_stream(result, "stdout", value.encode("utf-8"))
+                self.check_stream(result, "stderr", b"")
 
     def test_large_binary_dual_streams(self):
         count = 2 * 1024 * 1024 + 31

@@ -14,6 +14,7 @@ int closeFile(int fd) noexcept;
 void replaceFile(const std::filesystem::path &source, const std::filesystem::path &target);
 void binaryStandardStreams();
 #ifdef _WIN32
+std::wstring commandLine(const std::filesystem::path &executable, const std::vector<std::string> &arguments);
 std::vector<std::string> utf8Arguments(int argc, wchar_t **argv);
 #endif
 } // namespace dispatcher::platform

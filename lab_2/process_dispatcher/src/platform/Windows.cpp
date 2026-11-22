@@ -44,6 +44,32 @@ void binaryStandardStreams() {
     if (_setmode(_fileno(stdout), _O_BINARY) == -1 || _setmode(_fileno(stderr), _O_BINARY) == -1)
         throw std::system_error(errno, std::generic_category(), "Set binary output");
 }
+std::wstring commandLine(const std::filesystem::path &executable, const std::vector<std::string> &arguments) {
+    // Encode argv using Windows CRT rules, including empty arguments and trailing backslashes.
+    // Pass the complete line to Boost so its narrow-string conversion/quoting cannot change argv.
+    std::wstring result;
+    auto append = [&](const std::wstring &argument) {
+        if (!result.empty())
+            result += L' ';
+        result += L'"';
+        std::size_t slashes = 0;
+        for (const auto character : argument) {
+            if (character == L'\\') {
+                ++slashes;
+                continue;
+            }
+            result.append(character == L'"' ? 2 * slashes + 1 : slashes, L'\\');
+            slashes = 0;
+            result += character;
+        }
+        result.append(2 * slashes, L'\\');
+        result += L'"';
+    };
+    append(executable.native());
+    for (const auto &argument : arguments)
+        append(fromUtf8(argument).native());
+    return result;
+}
 std::vector<std::string> utf8Arguments(int argc, wchar_t **argv) {
     std::vector<std::string> result;
     result.reserve(argc);
